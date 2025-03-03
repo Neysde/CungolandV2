@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <!-- Link to our CSS file with proper path for EJS -->
+    <link rel="stylesheet" href="/css/login.css" />
+    <!-- Using Montserrat font as recommended in cssdesign.md -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="login-card">
+        <!-- App branding -->
+        <div class="logo">
+          <h1>Çüngoland</h1>
+          <p class="tagline">Login to the admin portal</p>
+        </div>
+
+        <!-- Login form with EJS handling for errors -->
+        <form id="loginForm" action="/login" method="POST">
+          <!-- Display error message if any using EJS conditional rendering -->
+          <% if (locals.errorMessage) { %>
+          <div class="error-message" role="alert"><%= errorMessage %></div>
+          <% } %>
+
+          <!-- Username field with semantic labeling -->
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              required
+              autocomplete="username"
+              aria-required="true"
+            />
+          </div>
+
+          <!-- Password field with toggle visibility -->
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-container">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+                autocomplete="current-password"
+                aria-required="true"
+              />
+              <!-- Toggle password visibility button with aria-label for accessibility -->
+              <button
+                type="button"
+                id="togglePassword"
+                class="toggle-password"
+                aria-label="Toggle password visibility"
+              >
+                Show
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember me checkbox -->
+          <div class="remember-me">
+            <input type="checkbox" id="rememberMe" name="rememberMe" />
+            <label for="rememberMe">Remember me</label>
+          </div>
+
+          <!-- Clear call-to-action button -->
+          <button type="submit" class="login-btn">Sign In</button>
+
+          <!-- Additional links section with clear visual separation -->
+          <div class="links">
+            <a href="/forgot-password">Forgot password?</a>
+            <a href="/signup">Create account</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Link to our JavaScript file -->
+    <script src="/js/login.js"></script>
+  </body>
+</html>

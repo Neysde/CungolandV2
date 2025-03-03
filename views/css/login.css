@@ -1,0 +1,228 @@
+/* 
+* Login Screen CSS
+* Following principles from cssdesign.md for typography and color theory
+*/
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* Using Montserrat as recommended in cssdesign.md */
+  font-family: "Montserrat", sans-serif;
+}
+
+:root {
+  /* Color palette based on cssdesign.md color theory section */
+  /* Primary color and its variations */
+  --primary-color: #5665e9;
+  --primary-hover: #4554d6;
+  --primary-light: #e8ebff;
+
+  /* Neutral colors */
+  --neutral-100: #f7f9fc;
+  --neutral-200: #e9ecef;
+  --neutral-300: #dee2e6;
+  --neutral-500: #adb5bd;
+  --neutral-700: #495057;
+  --neutral-900: #212529;
+
+  /* Feedback colors */
+  --error-color: #e74c3c;
+  --success-color: #2ecc71;
+
+  /* Typography variables */
+  --font-size-small: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-large: 1.125rem; /* 18px */
+  --font-size-xlarge: 1.5rem; /* 24px */
+  --line-height-base: 1.5;
+}
+
+body {
+  /* Modern gradient background as suggested in cssdesign.md */
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--neutral-900);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  padding: 20px;
+}
+
+/* Container with responsive width constraints */
+.container {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Card design with subtle shadow for depth */
+.login-card {
+  background-color: var(--neutral-100);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+}
+
+/* Logo and branding section */
+.logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo h1 {
+  color: var(--primary-color);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.tagline {
+  color: var(--neutral-700);
+  font-size: var(--font-size-small);
+}
+
+/* Form styling */
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--neutral-700);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--neutral-300);
+  border-radius: 6px;
+  font-size: var(--font-size-base);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(86, 101, 233, 0.2);
+  outline: none;
+}
+
+/* Password field container for toggle button positioning */
+.password-container {
+  position: relative;
+}
+
+/* Toggle password visibility button */
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  padding: 0;
+}
+
+.toggle-password:hover {
+  color: var(--primary-hover);
+}
+
+/* Error message styling */
+.error-message {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: var(--error-color);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: var(--font-size-small);
+  border-left: 3px solid var(--error-color);
+}
+
+/* Remember me checkbox styling */
+.remember-me {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.remember-me input {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.remember-me label {
+  font-size: var(--font-size-small);
+  color: var(--neutral-700);
+  cursor: pointer;
+}
+
+/* Primary action button with proper contrast */
+.login-btn {
+  width: 100%;
+  padding: 0.875rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.login-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.login-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(86, 101, 233, 0.3);
+}
+
+/* Additional links styling */
+.links {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-small);
+}
+
+.links a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.links a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.5rem;
+  }
+
+  .logo h1 {
+    font-size: 1.75rem;
+  }
+}
+
+/* Accessibility focus styles */
+input:focus,
+button:focus,
+a:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
