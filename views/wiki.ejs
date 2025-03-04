@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %> - Çüngoland</title>
+    <link rel="stylesheet" href="/css/wiki.css" />
+    <!-- Using Montserrat font to match login theme -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Main content area -->
+      <main class="content">
+        <!-- Header with title -->
+        <header class="page-header">
+          <h1><%= title %></h1>
+        </header>
+
+        <!-- Content section -->
+        <div class="content-layout">
+          <!-- Info table -->
+          <div class="info-table">
+            <div class="info-image">
+              <img src="<%= imageUrl %>" alt="<%= imageAlt %>" />
+            </div>
+            <table>
+              <tbody>
+                <tr>
+                  <th>Şuanki Başkanı</th>
+                  <td>Karl Szafnauer</td>
+                </tr>
+                <tr>
+                  <th>Kurucusu</th>
+                  <td>Friedrich Müller</td>
+                </tr>
+                <tr>
+                  <th>Kurulma Tarihi</th>
+                  <td>04.08.1948</td>
+                </tr>
+                <% additionalInfo.forEach(function(info) { %>
+                <tr>
+                  <th><%= info.label %></th>
+                  <td><%= info.value %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Main article content -->
+          <article class="article">
+            <div class="article-content"><%- content %></div>
+          </article>
+        </div>
+
+        <!-- Page metadata -->
+        <footer class="page-meta">
+          <p>Last modified: <%= lastModified %></p>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

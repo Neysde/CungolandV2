@@ -72,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // If form is invalid, prevent submission and show error
     if (!isValid) {
-      event.preventDefault();
       showFormError(errorMessage);
       return;
     }
@@ -92,12 +91,16 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed");
+        // Display server-side error message to the user
+        return showFormError(errorData.message || "Login failed");
       }
 
       window.location.href = "/api/dashboard";
     } catch (err) {
-      console.log(JSON.stringify(err));
+      // Log error to console for debugging
+      console.log("Error during login:", err);
+      // Display a generic error message to the user
+      //showFormError("An unexpected error occurred. Please try again later.");
     }
 
     // Handle "Remember me" functionality
@@ -112,8 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add loading state to button when form is being submitted
     const submitButton = loginForm.querySelector('button[type="submit"]');
-    submitButton.textContent = "Signing in...";
-    submitButton.disabled = true;
+    /* submitButton.textContent = "Signing in...";
+    submitButton.disabled = true; */
 
     // Note: In a real implementation, you might want to prevent the default
     // form submission and use fetch API for AJAX login

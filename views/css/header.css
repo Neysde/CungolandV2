@@ -1,0 +1,277 @@
+/* Header styles for Çüngoland
+ * Following mobile-first approach and modern CSS best practices
+ */
+
+:root {
+  --header-height: 84px;
+}
+
+.main-header {
+  width: 100%;
+  height: var(--header-height);
+  background: #2c3e50; /* Clean, professional dark blue */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Brand section styles */
+.brand-section {
+  display: flex;
+  align-items: center;
+  z-index: 1001;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+  margin-right: 0.5rem;
+}
+
+.site-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+/* Mobile menu button styles */
+.mobile-menu-toggle {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  z-index: 1001;
+  position: relative;
+}
+
+.hamburger {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #ffffff;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hamburger::before,
+.hamburger::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background: #ffffff;
+  left: 0;
+  transition: all 0.3s ease;
+}
+
+.hamburger::before {
+  top: -6px;
+}
+
+.hamburger::after {
+  bottom: -6px;
+}
+
+/* Mobile menu button active state */
+.mobile-menu-toggle.active .hamburger {
+  background: transparent;
+}
+
+.mobile-menu-toggle.active .hamburger::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.mobile-menu-toggle.active .hamburger::after {
+  bottom: 0;
+  transform: rotate(-45deg);
+}
+
+/* Navigation styles */
+.main-nav {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #2c3e50;
+  padding: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-20px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.main-nav.active {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+}
+
+.main-nav.active .nav-list {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.nav-list li {
+  margin: 0;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-nav.active .nav-list li {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.nav-list li:nth-child(1) {
+  transition-delay: 0.1s;
+}
+.nav-list li:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.nav-list li:nth-child(3) {
+  transition-delay: 0.2s;
+}
+.nav-list li:nth-child(4) {
+  transition-delay: 0.25s;
+}
+.nav-list li:nth-child(5) {
+  transition-delay: 0.3s;
+}
+
+.nav-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  display: block;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-left: 3px solid #3498db;
+}
+
+/* User actions styles */
+.user-actions {
+  display: flex;
+  align-items: center;
+  z-index: 1001;
+}
+
+.login-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.username {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Desktop styles */
+@media (min-width: 768px) {
+  .mobile-menu-toggle {
+    display: none;
+  }
+
+  .main-nav {
+    display: block;
+    position: static;
+    width: auto;
+    background: none;
+    padding: 0;
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .nav-list {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0;
+    transform: none;
+    opacity: 1;
+  }
+
+  .nav-list li {
+    margin: 0;
+    opacity: 1;
+    transform: none;
+  }
+
+  .nav-link {
+    padding: 0.5rem;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+
+  .nav-link:hover {
+    background: none;
+    opacity: 0.8;
+    border-left: none;
+    border-bottom: 2px solid #3498db;
+  }
+}

@@ -1,0 +1,45 @@
+<!-- Header component for Çüngoland -->
+
+<header class="main-header">
+  <div class="header-container">
+    <!-- Logo and site title section -->
+    <div class="brand-section">
+      <a href="/" class="logo-link">
+        <!-- <img src="/images/logo.png" alt="Çüngoland Logo" class="logo-image" /> -->
+        <h1 class="site-title">Çüngoland</h1>
+      </a>
+    </div>
+
+    <!-- Mobile menu button -->
+    <button class="mobile-menu-toggle" aria-label="Toggle menu">
+      <span class="hamburger"></span>
+    </button>
+
+    <!-- Navigation section -->
+    <nav class="main-nav">
+      <ul class="nav-list">
+        <li><a href="/ana-sayfa" class="nav-link">Ana Sayfa</a></li>
+        <li><a href="/cib" class="nav-link">ÇIB</a></li>
+        <li><a href="/utc" class="nav-link">UTC</a></li>
+        <li><a href="/cungo-wiki" class="nav-link">Çüngo Wiki</a></li>
+        <li><a href="/cungo-gazete" class="nav-link">Çüngo Gazete</a></li>
+      </ul>
+    </nav>
+
+    <!-- User actions section -->
+    <div class="user-actions">
+      <% if (locals.user) { %>
+      <div class="user-profile">
+        <img src="<%= user.avatar %>" alt="Profile" class="user-avatar" />
+        <span class="username"><%= user.name %></span>
+      </div>
+      <% } else { %>
+      <a href="/login" class="login-btn">Giriş Yap</a>
+      <% } %>
+    </div>
+  </div>
+</header>
+
+<!-- Include CSS and JS -->
+<link rel="stylesheet" href="/css/header.css" />
+<script src="/js/header.js" defer></script>
