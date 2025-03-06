@@ -6,6 +6,7 @@ import {
   multerUploads,
   dataUri,
 } from "../middlewares.mjs";
+import cloudinary from "cloudinary";
 const router = express.Router();
 
 router.use("*", cloudinaryConfig);
@@ -23,14 +24,19 @@ router.post("/api/upload", multerUploads, async (req, res) => {
       allowed_formats: ["jpg", "png", "webp"],
     });
 
+    const optimizeUrl = cloudinary.v2.url(result.public_id, {
+      fetch_format: "auto",
+      quality: "auto",
+    });
+
     // Don't save the image in MongoDB, just save the URL
     const newImage = new Image({
-      imageUrl: result.secure_url,
+      imageUrl: optimizeUrl,
     });
     await newImage.save();
 
     return res.status(200).json({
-      message: "Image uploaded successfully",
+      message: `Image uploaded successfully`,
     });
   } catch (err) {
     console.error("Upload Error:", err);

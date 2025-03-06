@@ -1,4 +1,4 @@
-import { config, uploader } from "cloudinary";
+import { config, uploader, v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import path from "path";
 import { fileTypeFromBuffer } from "file-type";
@@ -12,7 +12,7 @@ const cloudinaryConfig = (req, res, next) => {
   });
   next();
 };
-export { cloudinaryConfig, uploader };
+export { cloudinaryConfig, uploader, cloudinary };
 
 const storage = multer.memoryStorage();
 
