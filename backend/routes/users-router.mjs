@@ -65,6 +65,7 @@ router.post("/api/login", async (req, res) => {
     }
 
     req.session.userId = user._id;
+    req.session.username = user.username;
 
     // Redirect to the dashboard on successful login
     return res.status(200).send("Login successful");

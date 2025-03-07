@@ -4,8 +4,423 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= title %></title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <!-- Using Montserrat font to match existing theme -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
   </head>
   <body>
-    <h1>Dashboard</h1>
+    <div class="dashboard-container">
+      <header class="dashboard-header">
+        <h1>Wiki Dashboard</h1>
+        <p>Create and manage your wiki pages</p>
+      </header>
+
+      <main class="dashboard-content">
+        <!-- Dashboard Tabs -->
+        <div class="dashboard-tabs">
+          <button class="tab-btn active" data-tab="create">
+            Create New Wiki
+          </button>
+          <button class="tab-btn" data-tab="manage">Manage Wikis</button>
+        </div>
+
+        <!-- Create Wiki Section -->
+        <section id="create-section" class="wiki-creator tab-content active">
+          <h2>Create New Wiki</h2>
+
+          <form id="wikiForm" class="wiki-form" enctype="multipart/form-data">
+            <!-- Wiki Title Section -->
+            <div class="form-section">
+              <h3>Title</h3>
+              <div class="form-group">
+                <label for="wikiTitle">Main Title</label>
+                <input
+                  type="text"
+                  id="wikiTitle"
+                  name="title"
+                  required
+                  placeholder="Enter wiki title"
+                />
+                <!-- Hidden input for URL slug, automatically generated from title -->
+                <input type="hidden" id="wikiUrlHidden" name="urlSlug" />
+              </div>
+            </div>
+
+            <!-- Info Table Section -->
+            <div class="form-section">
+              <h3>Info Table</h3>
+
+              <!-- Info Table Image Upload -->
+              <div class="form-group">
+                <label for="infoImage">Info Table Image</label>
+                <div class="image-upload-container">
+                  <div class="image-preview" id="infoImagePreview">
+                    <i class="fas fa-image"></i>
+                    <span>No image selected</span>
+                  </div>
+                  <div class="image-upload-controls">
+                    <label class="upload-btn">
+                      <i class="fas fa-upload"></i> Upload Image
+                      <input
+                        type="file"
+                        id="infoImage"
+                        name="infoImage"
+                        accept="image/*"
+                        hidden
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Info Table Fields -->
+              <div class="form-group">
+                <label>Info Table Fields</label>
+                <div id="infoTableFields" class="info-table-fields">
+                  <!-- Empty by default - fields will be added by the user -->
+                </div>
+                <button type="button" id="addInfoField" class="add-field-btn">
+                  <i class="fas fa-plus"></i> Add Field
+                </button>
+              </div>
+            </div>
+
+            <!-- Content Section -->
+            <div class="form-section">
+              <h3>Content</h3>
+
+              <div id="contentSections" class="content-sections">
+                <!-- Initial paragraph section -->
+                <div class="content-section paragraph-section">
+                  <div class="section-header">
+                    <h4>Paragraph</h4>
+                    <div class="section-controls">
+                      <button type="button" class="remove-section">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="subtitle-0">Subtitle (optional)</label>
+                    <input
+                      type="text"
+                      id="subtitle-0"
+                      name="subtitles[]"
+                      placeholder="Enter subtitle"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="paragraph-0">Paragraph</label>
+                    <textarea
+                      id="paragraph-0"
+                      name="paragraphs[]"
+                      rows="4"
+                      placeholder="Enter paragraph content"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add Content Controls -->
+              <div class="add-content-controls">
+                <button type="button" id="addParagraph" class="add-content-btn">
+                  <i class="fas fa-paragraph"></i> Add Paragraph
+                </button>
+                <button type="button" id="addImage" class="add-content-btn">
+                  <i class="fas fa-image"></i> Add Image
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Section -->
+            <div class="form-actions">
+              <button type="button" id="previewWiki" class="preview-btn">
+                Preview
+              </button>
+              <button type="submit" class="submit-btn">Create Wiki</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Manage Wikis Section -->
+        <section id="manage-section" class="wiki-manager tab-content">
+          <h2>Manage Wikis</h2>
+
+          <!-- Wiki Cards Container -->
+          <div class="wiki-cards-container">
+            <% if (typeof wikis !== 'undefined' && wikis.length > 0) { %> <%
+            wikis.forEach(function(wiki) { %>
+            <div class="wiki-card" data-id="<%= wiki._id %>">
+              <div class="wiki-card-image">
+                <img
+                  src="<%= wiki.infoImage?.url || '/images/placeholder.jpg' %>"
+                  alt="<%= wiki.title %>"
+                />
+              </div>
+              <div class="wiki-card-content">
+                <h3><%= wiki.title %></h3>
+                <div class="wiki-card-meta">
+                  <span
+                    ><i class="fas fa-user"></i> <%= wiki.author || 'Unknown'
+                    %></span
+                  >
+                  <span
+                    ><i class="fas fa-clock"></i> <%= new
+                    Date(wiki.lastModified).toLocaleDateString() %></span
+                  >
+                </div>
+                <div class="wiki-card-actions">
+                  <button class="edit-wiki-btn" data-id="<%= wiki._id %>">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                  <a
+                    href="/wiki/<%= wiki.urlSlug %>"
+                    class="view-wiki-btn"
+                    target="_blank"
+                  >
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                </div>
+              </div>
+            </div>
+            <% }); %> <% } else { %>
+            <div class="no-wikis-message">
+              <i class="fas fa-file-alt"></i>
+              <p>No wikis found. Create your first wiki!</p>
+            </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- Edit Wiki Panel (Hidden by default) -->
+        <div id="edit-panel" class="edit-panel">
+          <div class="edit-panel-content">
+            <div class="edit-panel-header">
+              <h2>Edit Wiki</h2>
+              <button id="close-edit-panel" class="close-btn">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <form
+              id="editWikiForm"
+              class="wiki-form"
+              enctype="multipart/form-data"
+            >
+              <!-- Hidden Wiki ID -->
+              <input type="hidden" id="editWikiId" name="wikiId" />
+
+              <!-- Wiki Title Section -->
+              <div class="form-section">
+                <h3>Title</h3>
+                <div class="form-group">
+                  <label for="editWikiTitle">Main Title</label>
+                  <input
+                    type="text"
+                    id="editWikiTitle"
+                    name="title"
+                    required
+                    placeholder="Enter wiki title"
+                  />
+                  <!-- Hidden input for URL slug -->
+                  <input type="hidden" id="editWikiUrlSlug" name="urlSlug" />
+                </div>
+              </div>
+
+              <!-- Info Table Section -->
+              <div class="form-section">
+                <h3>Info Table</h3>
+
+                <!-- Info Table Image Upload -->
+                <div class="form-group">
+                  <label for="editInfoImage">Info Table Image</label>
+                  <div class="image-upload-container">
+                    <div class="image-preview" id="editInfoImagePreview">
+                      <i class="fas fa-image"></i>
+                      <span>No image selected</span>
+                    </div>
+                    <div class="image-upload-controls">
+                      <label class="upload-btn">
+                        <i class="fas fa-upload"></i> Upload New Image
+                        <input
+                          type="file"
+                          id="editInfoImage"
+                          name="infoImage"
+                          accept="image/*"
+                          hidden
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Info Table Fields -->
+                <div class="form-group">
+                  <label>Info Table Fields</label>
+                  <div id="editInfoTableFields" class="info-table-fields">
+                    <!-- Will be populated dynamically -->
+                  </div>
+                  <button
+                    type="button"
+                    id="editAddInfoField"
+                    class="add-field-btn"
+                  >
+                    <i class="fas fa-plus"></i> Add Field
+                  </button>
+                </div>
+              </div>
+
+              <!-- Content Section -->
+              <div class="form-section">
+                <h3>Content</h3>
+
+                <div id="editContentSections" class="content-sections">
+                  <!-- Will be populated dynamically -->
+                </div>
+
+                <!-- Add Content Controls -->
+                <div class="add-content-controls">
+                  <button
+                    type="button"
+                    id="editAddParagraph"
+                    class="add-content-btn"
+                  >
+                    <i class="fas fa-paragraph"></i> Add Paragraph
+                  </button>
+                  <button
+                    type="button"
+                    id="editAddImage"
+                    class="add-content-btn"
+                  >
+                    <i class="fas fa-image"></i> Add Image
+                  </button>
+                </div>
+              </div>
+
+              <!-- Submit Section -->
+              <div class="form-actions">
+                <button type="button" id="deleteWiki" class="delete-btn">
+                  <i class="fas fa-trash"></i> Delete Wiki
+                </button>
+                <button type="submit" class="submit-btn">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Templates for dynamic content -->
+    <template id="paragraphTemplate">
+      <div class="content-section paragraph-section">
+        <div class="section-header">
+          <h4>Paragraph</h4>
+          <div class="section-controls">
+            <button type="button" class="remove-section">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="subtitle-{index}">Subtitle (optional)</label>
+          <input
+            type="text"
+            id="subtitle-{index}"
+            name="subtitles[]"
+            placeholder="Enter subtitle"
+          />
+        </div>
+        <div class="form-group">
+          <label for="paragraph-{index}">Paragraph</label>
+          <textarea
+            id="paragraph-{index}"
+            name="paragraphs[]"
+            rows="4"
+            placeholder="Enter paragraph content"
+          ></textarea>
+        </div>
+      </div>
+    </template>
+
+    <template id="imageTemplate">
+      <div class="content-section image-section">
+        <div class="section-header">
+          <h4>Image</h4>
+          <div class="section-controls">
+            <button type="button" class="remove-section">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="image-caption-{index}">Caption (optional)</label>
+          <input
+            type="text"
+            id="image-caption-{index}"
+            name="imageCaptions[]"
+            placeholder="Enter image caption"
+          />
+        </div>
+        <div class="form-group">
+          <div class="image-upload-container">
+            <div class="image-preview content-image-preview">
+              <i class="fas fa-image"></i>
+              <span>No image selected</span>
+            </div>
+            <div class="image-upload-controls">
+              <label class="upload-btn">
+                <i class="fas fa-upload"></i> Upload Image
+                <input
+                  type="file"
+                  name="contentImages[]"
+                  accept="image/*"
+                  hidden
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="infoFieldTemplate">
+      <div class="info-field">
+        <input type="text" name="infoLabels[]" placeholder="Label" />
+        <input type="text" name="infoValues[]" placeholder="Value" />
+        <button type="button" class="remove-field">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </template>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Confirm Deletion</h3>
+          <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Are you sure you want to delete this wiki? This action cannot be
+            undone.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelDelete" class="cancel-btn">Cancel</button>
+          <button id="confirmDelete" class="delete-btn">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
   </body>
 </html>

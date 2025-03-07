@@ -42,6 +42,9 @@ const wikiSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  author: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -61,4 +64,5 @@ wikiSchema.pre("save", function (next) {
   next();
 });
 
-export const Wiki = mongoose.model("Wiki", wikiSchema);
+// Export the Wiki model with explicit collection name 'wikis'
+export const Wiki = mongoose.model("Wiki", wikiSchema, "wikis");
