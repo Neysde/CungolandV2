@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/cungoland-photos.css" />
+    <!-- Font Awesome for icons -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="main-container">
+      <!-- Header section -->
+      <header class="page-header">
+        <h1>Photos From Çüngoland</h1>
+        <p></p>
+      </header>
+
+      <!-- Main content -->
+      <main class="content-section">
+        <!-- Photos Grid -->
+        <div class="photos-grid">
+          <% if (photos && photos.length > 0) { %> <% photos.forEach(photo => {
+          %>
+          <div class="photo-card">
+            <div class="photo-image">
+              <img
+                src="<%= photo.imageUrl %>"
+                alt="Çüngoland Photo"
+                loading="lazy"
+              />
+            </div>
+            <div class="photo-content">
+              <p class="photo-description"><%= photo.description %></p>
+            </div>
+          </div>
+          <% }) %> <% } else { %>
+          <div class="no-photos-message">
+            <i class="fas fa-images"></i>
+            <p>No photos have been uploaded yet</p>
+          </div>
+          <% } %>
+        </div>
+      </main>
+
+      <!-- Footer section -->
+    </div>
+  </body>
+</html>

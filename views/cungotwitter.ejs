@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ÇüngoTwitter</title>
+    <!-- Include CSS files -->
+    <link rel="stylesheet" href="/css/cungotwitter.css" />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts - Montserrat -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- ÇüngoTwitter Page -->
+    <div class="twitter-container">
+      <!-- Header section -->
+      <header class="twitter-header">
+        <div class="header-content">
+          <h1>ÇüngoTwitter</h1>
+          <p>Share your thoughts with the world</p>
+        </div>
+        <!-- <div class="header-actions">
+          <a href="/api/dashboard" class="dashboard-btn">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </div> -->
+      </header>
+
+      <!-- Main content -->
+      <main class="twitter-content">
+        <!-- Tweet feed -->
+        <div class="tweet-feed">
+          <h2>Latest Tweets</h2>
+
+          <!-- If there are tweets, display them -->
+          <% if (typeof tweets !== 'undefined' && tweets.length > 0) { %>
+          <div class="tweets-container">
+            <% tweets.forEach(function(tweet) { %>
+            <div class="tweet-card">
+              <div class="tweet-header">
+                <div class="tweet-user">
+                  <span class="username"><%= tweet.username %></span>
+                  <span class="handle">@<%= tweet.handle %></span>
+                </div>
+                <div class="tweet-time">
+                  <span><%= tweet.timestamp %></span>
+                </div>
+              </div>
+              <div class="tweet-body">
+                <p><%= tweet.text %></p>
+                <% if (tweet.image) { %>
+                <div class="tweet-image">
+                  <img src="<%= tweet.image %>" alt="Tweet image" />
+                </div>
+                <% } %>
+              </div>
+              <div class="tweet-actions">
+                <button class="action-btn like-btn" data-id="<%= tweet.id %>">
+                  <i class="far fa-heart"></i>
+                  <span><%= tweet.likes || 0 %></span>
+                </button>
+                <button
+                  class="action-btn retweet-btn"
+                  data-id="<%= tweet.id %>"
+                >
+                  <i class="fas fa-retweet"></i>
+                  <span><%= tweet.retweets || 0 %></span>
+                </button>
+                <button
+                  class="action-btn comment-btn"
+                  data-id="<%= tweet.id %>"
+                >
+                  <i class="far fa-comment"></i>
+                  <span><%= tweet.comments || 0 %></span>
+                </button>
+              </div>
+            </div>
+            <% }); %>
+          </div>
+          <% } else { %>
+          <!-- No tweets message -->
+          <div class="no-tweets-message">
+            <i class="far fa-comment-dots"></i>
+            <p>No tweets yet. Be the first to share your thoughts!</p>
+          </div>
+          <% } %>
+        </div>
+      </main>
+
+      <!-- Footer section -->
+      <footer class="twitter-footer">
+        <p>
+          &copy; <%= new Date().getFullYear() %> ÇüngoTwitter. All rights
+          reserved.
+        </p>
+      </footer>
+    </div>
+
+    <!-- Include JavaScript -->
+    <script src="/js/cungotwitter.js"></script>
+  </body>
+</html>

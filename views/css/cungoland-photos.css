@@ -1,0 +1,252 @@
+/* 
+* Çüngoland Photos CSS
+* Following UI/UX principles from documentation
+*/
+
+/* Base styles - inheriting from existing theme */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+
+:root {
+  /* Color palette - matching existing theme */
+  --primary-color: #5665e9;
+  --primary-hover: #4554d6;
+  --primary-light: #e8ebff;
+  --neutral-100: #f7f9fc;
+  --neutral-200: #e9ecef;
+  --neutral-300: #dee2e6;
+  --neutral-500: #adb5bd;
+  --neutral-700: #495057;
+  --neutral-900: #212529;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --danger-hover: #c82333;
+  --warning-color: #ffc107;
+
+  /* Content spacing */
+  --content-max-width: 1200px;
+  --content-padding: 2rem;
+  --section-spacing: 2rem;
+  --element-spacing: 1rem;
+}
+
+/* Body styles with gradient background */
+body {
+  background: linear-gradient(135deg, #667eea, #764ba2); /* Same as ÇüngoWiki */
+  min-height: 100vh;
+  color: var(--neutral-900);
+  line-height: 1.6;
+  padding: var(--content-padding);
+}
+
+/* Main container styles */
+.main-container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--content-padding);
+  background-color: var(--neutral-100);
+  border-radius: 16px; /* Matching ÇüngoWiki */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow like ÇüngoWiki */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Page header */
+.page-header {
+  text-align: center;
+  margin-bottom: var(--section-spacing);
+  padding-bottom: var(--element-spacing);
+  border-bottom: 2px solid var(--primary-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-header h1 {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  color: var(--neutral-700);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Content section */
+.content-section {
+  padding: var(--element-spacing);
+  flex: 1;
+}
+
+/* Photo grid */
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: var(--section-spacing);
+}
+
+/* Photo card */
+.photo-card {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.photo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.photo-image {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  position: relative;
+}
+
+.photo-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.photo-card:hover .photo-image img {
+  transform: scale(1.05);
+}
+
+.photo-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.photo-description {
+  color: var(--neutral-900);
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* No photos message */
+.no-photos-message {
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--neutral-200);
+  border-radius: 12px;
+  grid-column: 1 / -1;
+}
+
+.no-photos-message i {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.no-photos-message p {
+  color: var(--neutral-700);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Back to dashboard button */
+.back-button {
+  display: inline-block;
+  margin-top: var(--element-spacing);
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .main-container {
+    margin: 1rem;
+    min-height: calc(100vh - 2rem);
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .photo-image {
+    height: 200px;
+  }
+
+  .content-section {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .main-container {
+    margin: 0;
+    border-radius: 8px;
+    min-height: calc(100vh - 1rem);
+  }
+
+  .photos-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .page-header {
+    padding: 1rem;
+  }
+
+  .photo-image {
+    height: 180px;
+  }
+}
+
+/* Footer */
+.page-footer {
+  background-color: var(--neutral-100);
+  color: var(--neutral-700);
+  padding: var(--element-spacing);
+  text-align: center;
+  font-size: 0.875rem;
+  border-top: 1px solid var(--neutral-200);
+  margin-top: auto;
+}

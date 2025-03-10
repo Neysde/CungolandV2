@@ -18,11 +18,15 @@
     <!-- Navigation section -->
     <nav class="main-nav">
       <ul class="nav-list">
-        <li><a href="/ana-sayfa" class="nav-link">Ana Sayfa</a></li>
-        <li><a href="/cib" class="nav-link">ÇIB</a></li>
-        <li><a href="/utc" class="nav-link">UTC</a></li>
-        <li><a href="/cungo-wiki" class="nav-link">Çüngo Wiki</a></li>
+        <li><a href="/" class="nav-link">Main Page</a></li>
+        <li><a href="/cungowiki" class="nav-link">Çüngo Wiki</a></li>
+        <li><a href="/cungotwitter" class="nav-link">ÇüngoTwitter</a></li>
         <li><a href="/cungo-gazete" class="nav-link">Çüngo Gazete</a></li>
+        <li>
+          <a href="/photos-from-cungoland" class="nav-link"
+            >Photos From Çüngoland</a
+          >
+        </li>
       </ul>
     </nav>
 
@@ -34,7 +38,7 @@
         <span class="username"><%= user.name %></span>
       </div>
       <% } else { %>
-      <a href="/login" class="login-btn">Giriş Yap</a>
+      <a href="/api/login" class="login-btn">Giriş Yap</a>
       <% } %>
     </div>
   </div>

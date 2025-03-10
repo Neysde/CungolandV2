@@ -11,6 +11,8 @@ import {
 } from "../middlewares.mjs";
 import cloudinary from "cloudinary";
 import { Wiki } from "../mongoose/schemas/wiki.mjs";
+import { Tweet } from "../mongoose/schemas/tweet.mjs";
+import { Photo } from "../mongoose/schemas/photo.mjs";
 import mongoose from "mongoose";
 
 const router = express.Router();
@@ -40,15 +42,37 @@ router.get("/api/dashboard", isAuthenticated, async (req, res) => {
       .sort({ lastModified: -1 })
       .toArray();
 
+    // Fetch all tweets using the Tweet model
+    const tweets = await Tweet.find().sort({ createdAt: -1 });
+
+    // Fetch all photos using the Photo model
+    const photos = await Photo.find().sort({ createdAt: -1 });
+
+    // Format tweets for display
+    const userTweets = tweets.map((tweet) => {
+      return {
+        id: tweet._id,
+        username: tweet.username,
+        handle: tweet.handle,
+        text: tweet.text,
+        image: tweet.image?.url,
+        timestamp: tweet.formatTimestamp(),
+      };
+    });
+
     res.render("dashboard.ejs", {
       title: "Dashboard | Cungoland",
       wikis: wikis,
+      userTweets: userTweets,
+      photos: photos,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);
     res.render("dashboard.ejs", {
       title: "Dashboard | Cungoland",
       wikis: [],
+      userTweets: [],
+      photos: [],
     });
   }
 });
@@ -608,5 +632,52 @@ router.post(
     }
   }
 );
+
+// Route for the photos page with a more user-friendly URL
+router.get("/photos-from-cungoland", async (req, res) => {
+  try {
+    // Fetch all photos, sorted by creation date (newest first)
+    const photos = await Photo.find().sort({ createdAt: -1 });
+
+    res.render("cungoland-photos.ejs", {
+      title: "Photos From Çüngoland",
+      photos,
+      layout: true,
+    });
+  } catch (err) {
+    console.error("Error fetching photos:", err);
+    res.status(500).render("error.ejs", {
+      message: "Failed to load photos",
+      error: err,
+    });
+  }
+});
+
+// ÇüngoWiki page - displays all wikis
+router.get("/cungowiki", async (req, res) => {
+  try {
+    // Get direct access to the 'wikis' collection
+    const db = mongoose.connection.db;
+    const wikisCollection = db.collection("wikis");
+
+    // Fetch all wikis from the collection, sorted by last modified date
+    const wikis = await wikisCollection
+      .find()
+      .sort({ lastModified: -1 })
+      .toArray();
+
+    // Render the ÇüngoWiki page with the wikis
+    res.render("cungowiki.ejs", {
+      wikis: wikis,
+      user: req.session.user || null,
+    });
+  } catch (error) {
+    console.error("ÇüngoWiki Error:", error);
+    res.render("cungowiki.ejs", {
+      wikis: [],
+      user: req.session.user || null,
+    });
+  }
+});
 
 export default router;

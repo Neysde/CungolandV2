@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= title %></title>
     <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/cungotwitter.css" />
     <!-- Using Montserrat font to match existing theme -->
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
@@ -19,7 +20,7 @@
   <body>
     <div class="dashboard-container">
       <header class="dashboard-header">
-        <h1>Wiki Dashboard</h1>
+        <h1>Dashboard</h1>
         <p>Create and manage your wiki pages</p>
       </header>
 
@@ -30,6 +31,10 @@
             Create New Wiki
           </button>
           <button class="tab-btn" data-tab="manage">Manage Wikis</button>
+          <button class="tab-btn" data-tab="twitter">
+            Manage ÇüngoTwitter
+          </button>
+          <button class="tab-btn" data-tab="photos">Manage Photos</button>
         </div>
 
         <!-- Create Wiki Section -->
@@ -197,6 +202,244 @@
               <p>No wikis found. Create your first wiki!</p>
             </div>
             <% } %>
+          </div>
+        </section>
+
+        <!-- ÇüngoTwitter Section -->
+        <section id="twitter-section" class="twitter-manager tab-content">
+          <div class="twitter-creator">
+            <h2>Create New Tweet</h2>
+
+            <form
+              id="tweetForm"
+              action="/api/tweets"
+              method="POST"
+              enctype="multipart/form-data"
+            >
+              <!-- User info section -->
+              <div class="form-section">
+                <h3>User Information</h3>
+
+                <div class="form-group">
+                  <label for="username">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Your display name"
+                    required
+                  />
+                  <small
+                    >This is the name that will be displayed on your
+                    tweets</small
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="handle">Handle (@)</label>
+                  <input
+                    type="text"
+                    id="handle"
+                    name="handle"
+                    placeholder="yourusername"
+                    required
+                  />
+                  <small
+                    >Your unique identifier on ÇüngoTwitter (without the @
+                    symbol)</small
+                  >
+                </div>
+              </div>
+
+              <!-- Tweet content section -->
+              <div class="form-section">
+                <h3>Tweet Content</h3>
+
+                <div class="form-group">
+                  <label for="tweetText">What's happening?</label>
+                  <textarea
+                    id="tweetText"
+                    name="text"
+                    rows="4"
+                    maxlength="280"
+                    placeholder="Share your thoughts..."
+                    required
+                  ></textarea>
+                  <small class="character-count"
+                    >280 characters remaining</small
+                  >
+                </div>
+
+                <!-- Image upload -->
+                <div class="image-upload-container">
+                  <label>Add an image (optional)</label>
+                  <div class="image-preview" id="tweetImagePreview">
+                    <i class="fas fa-image"></i>
+                    <p>No image selected</p>
+                  </div>
+
+                  <div class="image-upload-controls">
+                    <label for="tweetImage" class="upload-btn">
+                      <i class="fas fa-upload"></i> Upload New Image
+                    </label>
+                    <input
+                      type="file"
+                      id="tweetImage"
+                      name="tweetImage"
+                      accept="image/*"
+                      style="display: none"
+                    />
+                    <button
+                      type="button"
+                      id="removeImage"
+                      class="remove-image-btn"
+                      style="display: none"
+                    >
+                      <i class="fas fa-trash-alt"></i> Remove Image
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form actions -->
+              <div class="form-actions">
+                <button type="submit" class="submit-btn">
+                  <i class="fas fa-paper-plane"></i> Post Tweet
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Tweet manager section -->
+          <div class="twitter-manager">
+            <h2>Your Tweets</h2>
+
+            <!-- If there are tweets, display them -->
+            <% if (typeof userTweets !== 'undefined' && userTweets.length > 0) {
+            %>
+            <div class="tweets-dashboard-container">
+              <% userTweets.forEach(function(tweet) { %>
+              <div class="tweet-dashboard-card">
+                <div class="tweet-content">
+                  <div class="tweet-header">
+                    <span class="username"><%= tweet.username %></span>
+                    <span class="handle">@<%= tweet.handle %></span>
+                    <span class="timestamp"><%= tweet.timestamp %></span>
+                  </div>
+                  <div class="tweet-text">
+                    <p><%= tweet.text %></p>
+                  </div>
+                  <% if (tweet.image) { %>
+                  <div class="tweet-thumbnail">
+                    <img src="<%= tweet.image %>" alt="Tweet image" />
+                  </div>
+                  <% } %>
+                </div>
+                <div class="tweet-actions">
+                  <button class="edit-tweet-btn" data-id="<%= tweet.id %>">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                  <button class="delete-tweet-btn" data-id="<%= tweet.id %>">
+                    <i class="fas fa-trash-alt"></i> Delete
+                  </button>
+                </div>
+              </div>
+              <% }); %>
+            </div>
+            <% } else { %>
+            <!-- No tweets message -->
+            <div class="no-tweets-message">
+              <i class="far fa-comment-dots"></i>
+              <p>
+                You haven't posted any tweets yet. Create your first tweet
+                above!
+              </p>
+            </div>
+            <% } %>
+
+            <div
+              class="view-twitter-container"
+              style="margin-top: 2rem; text-align: center"
+            >
+              <a href="/cungotwitter" class="view-twitter-btn">
+                <i class="fas fa-external-link-alt"></i> View ÇüngoTwitter
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Photos Section -->
+        <section id="photos-section" class="photos-manager tab-content">
+          <h2>Manage Photos From Çüngoland</h2>
+
+          <!-- Alert Container -->
+          <div id="alertContainer" class="alert-container"></div>
+
+          <!-- Photo Upload Form -->
+          <div class="form-section">
+            <h3>Upload New Photo</h3>
+            <form
+              id="photoForm"
+              class="photo-form"
+              enctype="multipart/form-data"
+            >
+              <div class="form-group">
+                <label for="photoInput">Select Image</label>
+                <div class="image-upload-container">
+                  <div id="photoPreview" class="image-preview">
+                    <i class="fas fa-image"></i>
+                  </div>
+                  <div class="image-upload-controls">
+                    <input
+                      type="file"
+                      id="photoInput"
+                      accept="image/*"
+                      class="file-input"
+                      style="display: none"
+                    />
+                    <label for="photoInput" class="upload-btn">
+                      <i class="fas fa-upload"></i> Choose Image
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="photoDescription">Description</label>
+                <textarea
+                  id="photoDescription"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Enter a description for this photo"
+                ></textarea>
+                <small>Describe what this photo shows or represents</small>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" id="uploadBtn" class="submit-btn">
+                  <i class="fas fa-cloud-upload-alt"></i> Upload Photo
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Photos List -->
+          <div class="form-section">
+            <h3>Your Photos</h3>
+            <div id="photosList" class="photos-list">
+              <!-- Photos will be loaded here via JavaScript -->
+              <div class="loading-message">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading photos...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- View All Photos Button -->
+          <div class="form-actions" style="text-align: center">
+            <a href="/photos-from-cungoland" class="view-all-btn">
+              <i class="fas fa-images"></i> View All Photos
+            </a>
           </div>
         </section>
 
@@ -421,6 +664,57 @@
       </div>
     </div>
 
+    <!-- Edit Tweet Modal -->
+    <div id="editTweetModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Tweet</h3>
+          <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="editTweetForm">
+            <div class="form-group">
+              <label for="editTweetText">Edit your tweet</label>
+              <textarea
+                id="editTweetText"
+                name="text"
+                rows="4"
+                maxlength="280"
+                required
+              ></textarea>
+              <small class="character-count">280 characters remaining</small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn">Cancel</button>
+          <button class="submit-btn" id="updateTweetBtn">Update</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Tweet Modal -->
+    <div id="deleteTweetModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Delete Tweet</h3>
+          <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Are you sure you want to delete this tweet? This action cannot be
+            undone.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn">Cancel</button>
+          <button class="delete-btn" id="confirmDeleteTweet">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <script src="/js/dashboard.js"></script>
+    <script src="/js/cungotwitter.js"></script>
+    <script src="/js/photos-manager.js"></script>
   </body>
 </html>

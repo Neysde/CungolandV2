@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ÇüngoWiki</title>
+    <link rel="stylesheet" href="/css/cungowiki.css" />
+    <!-- Using Montserrat font to match existing theme -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="wiki-container">
+      <!-- Header section -->
+      <header class="wiki-header">
+        <div class="header-content">
+          <h1>Çüngo Wiki</h1>
+          <p>Learn about Çüngoland</p>
+        </div>
+        <% if (locals.user) { %>
+        <div class="header-actions">
+          <a href="/api/dashboard" class="dashboard-btn">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </div>
+        <% } %>
+      </header>
+
+      <!-- Main content -->
+      <main class="wiki-content">
+        <!-- Wiki cards section -->
+        <div class="wiki-cards-section">
+          <h2>All Wiki Pages</h2>
+
+          <!-- Wiki Cards Container -->
+          <div class="wiki-cards-container">
+            <% if (typeof wikis !== 'undefined' && wikis.length > 0) { %> <%
+            wikis.forEach(function(wiki) { %>
+            <div class="wiki-card" data-slug="<%= wiki.urlSlug %>">
+              <div class="wiki-card-image">
+                <img
+                  src="<%= wiki.infoImage?.url || '/images/placeholder.jpg' %>"
+                  alt="<%= wiki.title %>"
+                />
+              </div>
+              <div class="wiki-card-content">
+                <h3><%= wiki.title %></h3>
+                <div class="wiki-card-meta">
+                  <span>
+                    <i class="fas fa-clock"></i> <%= new
+                    Date(wiki.lastModified).toLocaleDateString() %>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <% }); %> <% } else { %>
+            <div class="no-wikis-message">
+              <i class="fas fa-file-alt"></i>
+              <p>No wikis found. Create your first wiki in the dashboard!</p>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Include JavaScript -->
+    <script src="/js/cungowiki.js"></script>
+  </body>
+</html>

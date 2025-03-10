@@ -27,6 +27,7 @@ const multerUploads = multer({
   { name: "infoImage", maxCount: 1 },
   { name: "contentImages[]", maxCount: 10 }, // Updated field name with array notation
   { name: "contentImages", maxCount: 10 }, // Also include without array notation for compatibility
+  { name: "tweetImage", maxCount: 1 }, // Add tweetImage field for the tweet form
 ]);
 
 const createDataURI = async (buffer) => {
