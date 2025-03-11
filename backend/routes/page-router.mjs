@@ -11,6 +11,7 @@ import {
 } from "../middlewares.mjs";
 import cloudinary from "cloudinary";
 import { Wiki } from "../mongoose/schemas/wiki.mjs";
+import { News } from "../mongoose/schemas/news.mjs";
 import { Tweet } from "../mongoose/schemas/tweet.mjs";
 import { Photo } from "../mongoose/schemas/photo.mjs";
 import mongoose from "mongoose";
@@ -48,6 +49,9 @@ router.get("/api/dashboard", isAuthenticated, async (req, res) => {
     // Fetch all photos using the Photo model
     const photos = await Photo.find().sort({ createdAt: -1 });
 
+    // Fetch all news articles using the News model
+    const newsArticles = await News.find().sort({ publishDate: -1 });
+
     // Format tweets for display
     const userTweets = tweets.map((tweet) => {
       return {
@@ -60,11 +64,18 @@ router.get("/api/dashboard", isAuthenticated, async (req, res) => {
       };
     });
 
+    // Get unique news categories
+    const categories = [
+      ...new Set(newsArticles.map((article) => article.category)),
+    ];
+
     res.render("dashboard.ejs", {
       title: "Dashboard | Cungoland",
       wikis: wikis,
       userTweets: userTweets,
       photos: photos,
+      newsArticles: newsArticles,
+      newsCategories: categories,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);
@@ -73,6 +84,8 @@ router.get("/api/dashboard", isAuthenticated, async (req, res) => {
       wikis: [],
       userTweets: [],
       photos: [],
+      newsArticles: [],
+      newsCategories: [],
     });
   }
 });
@@ -676,6 +689,559 @@ router.get("/cungowiki", async (req, res) => {
     res.render("cungowiki.ejs", {
       wikis: [],
       user: req.session.user || null,
+    });
+  }
+});
+
+// ÇüngoNews page
+router.get("/cungonews", async (req, res) => {
+  try {
+    // Fetch all news articles
+    const newsArticles = await News.find().sort({ publishDate: -1 });
+
+    // Get unique categories
+    const categories = [
+      ...new Set(newsArticles.map((article) => article.category)),
+    ];
+
+    res.render("cungonews.ejs", {
+      title: "ÇüngoNews | Cungoland",
+      newsArticles: newsArticles,
+      categories: categories,
+    });
+  } catch (error) {
+    console.error("ÇüngoNews Error:", error);
+    res.render("cungonews.ejs", {
+      title: "ÇüngoNews | Cungoland",
+      newsArticles: [],
+      categories: [],
+    });
+  }
+});
+
+// News article by slug
+router.get("/news/:slug", async (req, res) => {
+  try {
+    // Find news article by slug
+    const newsArticle = await News.findOne({ urlSlug: req.params.slug });
+
+    if (!newsArticle) {
+      return res.status(404).render("error.ejs", {
+        message: "News article not found",
+        error: { status: 404, stack: "" },
+      });
+    }
+
+    // Render news article page
+    res.render("news.ejs", {
+      title: newsArticle.title,
+      imageUrl: newsArticle.infoImage?.url || "",
+      imageAlt: newsArticle.infoImage?.alt || newsArticle.title,
+      additionalInfo: newsArticle.infoFields || [],
+      content: newsArticle.content,
+      publishDate: newsArticle.publishDate,
+      category: newsArticle.category,
+      featured: newsArticle.featured,
+      author: newsArticle.author,
+      lastModified: new Date(newsArticle.lastModified).toLocaleDateString(),
+    });
+  } catch (error) {
+    console.error("News Article Fetch Error:", error);
+    res.status(500).render("error.ejs", {
+      message: "Error fetching news article",
+      error: {
+        status: 500,
+        stack: process.env.NODE_ENV === "development" ? error.stack : "",
+      },
+    });
+  }
+});
+
+// Get news article data for editing
+router.get("/api/news/:id/data", isAuthenticated, async (req, res) => {
+  try {
+    // Validate the ID format
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid news article ID format",
+      });
+    }
+
+    // Find news article by ID
+    const newsArticle = await News.findById(req.params.id);
+
+    if (!newsArticle) {
+      return res.status(404).json({
+        success: false,
+        message: "News article not found",
+      });
+    }
+
+    // Return news article data
+    res.status(200).json(newsArticle);
+  } catch (error) {
+    console.error("News Article Data Fetch Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching news article data",
+      error: error.message,
+    });
+  }
+});
+
+// Update news article
+router.post(
+  "/api/news/:id/update",
+  isAuthenticated,
+  multerUploads,
+  async (req, res) => {
+    try {
+      // Validate the ID format
+      if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid news article ID format",
+        });
+      }
+
+      // Find news article by ID
+      const newsArticle = await News.findById(req.params.id);
+
+      if (!newsArticle) {
+        return res.status(404).json({
+          success: false,
+          message: "News article not found",
+        });
+      }
+
+      // Extract form data
+      const {
+        title,
+        urlSlug,
+        infoLabels,
+        infoValues,
+        subtitles,
+        paragraphs,
+        imageCaptions,
+        category,
+        featured,
+        publishDate,
+      } = req.body;
+
+      // If urlSlug is empty, generate it from title
+      const finalUrlSlug =
+        urlSlug ||
+        title
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-");
+
+      // Check if another news article with this slug already exists (excluding this one)
+      const existingNewsArticle = await News.findOne({
+        urlSlug: finalUrlSlug,
+        _id: { $ne: req.params.id },
+      });
+
+      if (existingNewsArticle) {
+        return res.status(400).json({
+          success: false,
+          message: "A news article with this URL already exists",
+        });
+      }
+
+      // Process info table image
+      let infoImageUrl = newsArticle.infoImage?.url || "";
+      let infoImageAlt = title;
+      if (req.files && req.files.infoImage && req.files.infoImage.length > 0) {
+        const fileContent = await dataUri(req.files.infoImage[0]);
+        const result = await uploader.upload(fileContent, {
+          resource_type: "auto",
+          allowed_formats: ["jpg", "png", "webp"],
+        });
+
+        infoImageUrl = cloudinary.v2.url(result.public_id, {
+          fetch_format: "auto",
+          quality: "auto",
+        });
+      }
+
+      // Process content images
+      const contentImageUrls = [];
+      if (
+        req.files &&
+        req.files["contentImages[]"] &&
+        req.files["contentImages[]"].length > 0
+      ) {
+        for (const file of req.files["contentImages[]"]) {
+          const fileContent = await dataUri(file);
+          const result = await uploader.upload(fileContent, {
+            resource_type: "auto",
+            allowed_formats: ["jpg", "png", "webp"],
+          });
+
+          const imageUrl = cloudinary.v2.url(result.public_id, {
+            fetch_format: "auto",
+            quality: "auto",
+          });
+
+          contentImageUrls.push(imageUrl);
+        }
+      } else if (
+        req.files &&
+        req.files.contentImages &&
+        req.files.contentImages.length > 0
+      ) {
+        for (const file of req.files.contentImages) {
+          const fileContent = await dataUri(file);
+          const result = await uploader.upload(fileContent, {
+            resource_type: "auto",
+            allowed_formats: ["jpg", "png", "webp"],
+          });
+
+          const imageUrl = cloudinary.v2.url(result.public_id, {
+            fetch_format: "auto",
+            quality: "auto",
+          });
+
+          contentImageUrls.push(imageUrl);
+        }
+      }
+
+      // Create info fields array
+      const infoFields = [];
+      if (infoLabels && infoValues) {
+        // If infoLabels is a string, convert to array
+        const labelsArray = Array.isArray(infoLabels)
+          ? infoLabels
+          : [infoLabels];
+        const valuesArray = Array.isArray(infoValues)
+          ? infoValues
+          : [infoValues];
+
+        for (let i = 0; i < labelsArray.length; i++) {
+          if (labelsArray[i] && valuesArray[i]) {
+            infoFields.push({
+              label: labelsArray[i],
+              value: valuesArray[i],
+            });
+          }
+        }
+      }
+
+      // Generate HTML content from paragraphs, subtitles, and images
+      let htmlContent = "";
+
+      // If subtitles is a string, convert to array
+      const subtitlesArray = Array.isArray(subtitles)
+        ? subtitles
+        : subtitles
+        ? [subtitles]
+        : [];
+      const paragraphsArray = Array.isArray(paragraphs)
+        ? paragraphs
+        : paragraphs
+        ? [paragraphs]
+        : [];
+      const imageCaptionsArray = Array.isArray(imageCaptions)
+        ? imageCaptions
+        : imageCaptions
+        ? [imageCaptions]
+        : [];
+
+      // Add paragraphs and subtitles
+      for (let i = 0; i < paragraphsArray.length; i++) {
+        if (subtitlesArray[i]) {
+          htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
+        }
+
+        if (paragraphsArray[i]) {
+          htmlContent += `<p>${paragraphsArray[i]}</p>`;
+        }
+      }
+
+      // Add images with captions
+      for (let i = 0; i < contentImageUrls.length; i++) {
+        const caption = imageCaptionsArray[i] || "";
+        htmlContent += `
+        <div class="article-image">
+          <img src="${contentImageUrls[i]}" alt="${caption}">
+          ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+        </div>
+      `;
+      }
+
+      // Update news article
+      newsArticle.title = title;
+      newsArticle.urlSlug = finalUrlSlug;
+      newsArticle.infoImage = {
+        url: infoImageUrl,
+        alt: infoImageAlt,
+      };
+      newsArticle.infoFields = infoFields;
+      newsArticle.content = htmlContent;
+      newsArticle.category = category || "General";
+      newsArticle.featured = featured === "true" || featured === true;
+      newsArticle.publishDate = publishDate
+        ? new Date(publishDate)
+        : new Date();
+      newsArticle.lastModified = new Date();
+
+      // Save updated news article
+      await newsArticle.save();
+
+      // Return success with the URL
+      res.status(200).json({
+        success: true,
+        message: "News article updated successfully",
+        url: `/news/${finalUrlSlug}`,
+      });
+    } catch (error) {
+      console.error("News Article Update Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error updating news article",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// Handle news article creation
+router.post(
+  "/api/news/create",
+  isAuthenticated,
+  multerUploads,
+  async (req, res) => {
+    try {
+      // Extract form data
+      const {
+        title,
+        urlSlug,
+        infoLabels,
+        infoValues,
+        subtitles,
+        paragraphs,
+        imageCaptions,
+        category,
+        featured,
+        publishDate,
+      } = req.body;
+
+      // If urlSlug is empty, generate it from title
+      const finalUrlSlug =
+        urlSlug ||
+        title
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-");
+
+      // Check if news article with this slug already exists
+      const existingNewsArticle = await News.findOne({
+        urlSlug: finalUrlSlug,
+      });
+
+      if (existingNewsArticle) {
+        return res.status(400).json({
+          success: false,
+          message: "A news article with this URL already exists",
+        });
+      }
+
+      // Process info table image
+      let infoImageUrl = "";
+      let infoImageAlt = title;
+      if (req.files && req.files.infoImage && req.files.infoImage.length > 0) {
+        const fileContent = await dataUri(req.files.infoImage[0]);
+        const result = await uploader.upload(fileContent, {
+          resource_type: "auto",
+          allowed_formats: ["jpg", "png", "webp"],
+        });
+
+        infoImageUrl = cloudinary.v2.url(result.public_id, {
+          fetch_format: "auto",
+          quality: "auto",
+        });
+      }
+
+      // Process content images
+      const contentImageUrls = [];
+      if (
+        req.files &&
+        req.files["contentImages[]"] &&
+        req.files["contentImages[]"].length > 0
+      ) {
+        for (const file of req.files["contentImages[]"]) {
+          const fileContent = await dataUri(file);
+          const result = await uploader.upload(fileContent, {
+            resource_type: "auto",
+            allowed_formats: ["jpg", "png", "webp"],
+          });
+
+          const imageUrl = cloudinary.v2.url(result.public_id, {
+            fetch_format: "auto",
+            quality: "auto",
+          });
+
+          contentImageUrls.push(imageUrl);
+        }
+      } else if (
+        req.files &&
+        req.files.contentImages &&
+        req.files.contentImages.length > 0
+      ) {
+        for (const file of req.files.contentImages) {
+          const fileContent = await dataUri(file);
+          const result = await uploader.upload(fileContent, {
+            resource_type: "auto",
+            allowed_formats: ["jpg", "png", "webp"],
+          });
+
+          const imageUrl = cloudinary.v2.url(result.public_id, {
+            fetch_format: "auto",
+            quality: "auto",
+          });
+
+          contentImageUrls.push(imageUrl);
+        }
+      }
+
+      // Create info fields array
+      const infoFields = [];
+      if (infoLabels && infoValues) {
+        // If infoLabels is a string, convert to array
+        const labelsArray = Array.isArray(infoLabels)
+          ? infoLabels
+          : [infoLabels];
+        const valuesArray = Array.isArray(infoValues)
+          ? infoValues
+          : [infoValues];
+
+        for (let i = 0; i < labelsArray.length; i++) {
+          if (labelsArray[i] && valuesArray[i]) {
+            infoFields.push({
+              label: labelsArray[i],
+              value: valuesArray[i],
+            });
+          }
+        }
+      }
+
+      // Generate HTML content from paragraphs, subtitles, and images
+      let htmlContent = "";
+
+      // If subtitles is a string, convert to array
+      const subtitlesArray = Array.isArray(subtitles)
+        ? subtitles
+        : subtitles
+        ? [subtitles]
+        : [];
+      const paragraphsArray = Array.isArray(paragraphs)
+        ? paragraphs
+        : paragraphs
+        ? [paragraphs]
+        : [];
+      const imageCaptionsArray = Array.isArray(imageCaptions)
+        ? imageCaptions
+        : imageCaptions
+        ? [imageCaptions]
+        : [];
+
+      // Add paragraphs and subtitles
+      for (let i = 0; i < paragraphsArray.length; i++) {
+        if (subtitlesArray[i]) {
+          htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
+        }
+
+        if (paragraphsArray[i]) {
+          htmlContent += `<p>${paragraphsArray[i]}</p>`;
+        }
+      }
+
+      // Add images with captions
+      for (let i = 0; i < contentImageUrls.length; i++) {
+        const caption = imageCaptionsArray[i] || "";
+        htmlContent += `
+        <div class="article-image">
+          <img src="${contentImageUrls[i]}" alt="${caption}">
+          ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+        </div>
+      `;
+      }
+
+      // Create new news article
+      const newNewsArticle = new News({
+        title,
+        urlSlug: finalUrlSlug,
+        infoImage: {
+          url: infoImageUrl,
+          alt: infoImageAlt,
+        },
+        infoFields,
+        content: htmlContent,
+        publishDate: publishDate ? new Date(publishDate) : new Date(),
+        category: category || "General",
+        featured: featured === "true" || featured === true,
+        createdBy: req.session?.userId,
+        author: req.session?.username,
+        createdAt: new Date(),
+        lastModified: new Date(),
+      });
+
+      // Save news article
+      await newNewsArticle.save();
+
+      // Return success with the URL
+      res.status(200).json({
+        success: true,
+        message: "News article created successfully",
+        url: `/news/${finalUrlSlug}`,
+      });
+    } catch (error) {
+      console.error("News Article Creation Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error creating news article",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// Delete news article
+router.delete("/api/news/:id", isAuthenticated, async (req, res) => {
+  try {
+    // Validate the ID format
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid news article ID format",
+      });
+    }
+
+    // Find and delete news article
+    const result = await News.findByIdAndDelete(req.params.id);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "News article not found",
+      });
+    }
+
+    // Return success
+    res.status(200).json({
+      success: true,
+      message: "News article deleted successfully",
+    });
+  } catch (error) {
+    console.error("News Article Deletion Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting news article",
+      error: error.message,
     });
   }
 });

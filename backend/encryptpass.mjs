@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs"; //check for bcryptjs if this is working or not. If not, change it back to bcrypt or rewrite the encrypt code.
 
 const saltRounds = 10;
 
