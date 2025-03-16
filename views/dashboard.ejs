@@ -31,6 +31,8 @@
             Create New Wiki
           </button>
           <button class="tab-btn" data-tab="manage">Manage Wikis</button>
+          <button class="tab-btn" data-tab="createNews">Create New News</button>
+          <button class="tab-btn" data-tab="manageNews">Manage News</button>
           <button class="tab-btn" data-tab="twitter">
             Manage ÇüngoTwitter
           </button>
@@ -200,6 +202,218 @@
             <div class="no-wikis-message">
               <i class="fas fa-file-alt"></i>
               <p>No wikis found. Create your first wiki!</p>
+            </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- Create News Section -->
+        <section id="createNews-section" class="news-creator tab-content">
+          <h2>Create New News Article</h2>
+
+          <form id="newsForm" class="news-form" enctype="multipart/form-data">
+            <!-- News Title Section -->
+            <div class="form-section">
+              <h3>Title</h3>
+              <div class="form-group">
+                <label for="newsTitle">Main Title</label>
+                <input
+                  type="text"
+                  id="newsTitle"
+                  name="title"
+                  required
+                  placeholder="Enter news title"
+                />
+                <!-- Hidden input for URL slug, automatically generated from title -->
+                <input type="hidden" id="newsUrlHidden" name="urlSlug" />
+              </div>
+            </div>
+
+            <!-- News Category and Featured Section -->
+            <div class="form-section">
+              <h3>News Details</h3>
+              <div class="form-group">
+                <label for="newsCategory">Category</label>
+                <input
+                  type="text"
+                  id="newsCategory"
+                  name="category"
+                  placeholder="Enter category (e.g., Politics, Sports, Technology)"
+                  value="General"
+                />
+              </div>
+              <div class="form-group">
+                <label for="newsPublishDate">Publish Date</label>
+                <input
+                  type="date"
+                  id="newsPublishDate"
+                  name="publishDate"
+                  value="<%= new Date().toISOString().split('T')[0] %>"
+                />
+              </div>
+              <div class="form-group checkbox-group">
+                <input type="checkbox" id="newsFeatured" name="featured" />
+                <label for="newsFeatured">Featured Article</label>
+              </div>
+            </div>
+
+            <!-- Info Table Section -->
+            <div class="form-section">
+              <h3>Info Table</h3>
+
+              <!-- Info Table Image Upload -->
+              <div class="form-group">
+                <label for="newsInfoImage">Info Table Image</label>
+                <div class="image-upload-container">
+                  <div class="image-preview" id="newsInfoImagePreview">
+                    <i class="fas fa-image"></i>
+                    <span>No image selected</span>
+                  </div>
+                  <div class="image-upload-controls">
+                    <label class="upload-btn">
+                      <i class="fas fa-upload"></i> Upload Image
+                      <input
+                        type="file"
+                        id="newsInfoImage"
+                        name="infoImage"
+                        accept="image/*"
+                        hidden
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Info Table Fields -->
+              <div class="form-group">
+                <label>Info Table Fields</label>
+                <div id="newsInfoTableFields" class="info-table-fields">
+                  <!-- Empty by default - fields will be added by the user -->
+                </div>
+                <button
+                  type="button"
+                  id="addNewsInfoField"
+                  class="add-field-btn"
+                >
+                  <i class="fas fa-plus"></i> Add Field
+                </button>
+              </div>
+            </div>
+
+            <!-- Content Section -->
+            <div class="form-section">
+              <h3>Content</h3>
+
+              <div id="newsContentSections" class="content-sections">
+                <!-- Initial paragraph section -->
+                <div class="content-section paragraph-section">
+                  <div class="section-header">
+                    <h4>Paragraph</h4>
+                    <div class="section-controls">
+                      <button type="button" class="remove-section">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="news-subtitle-0">Subtitle (optional)</label>
+                    <input
+                      type="text"
+                      id="news-subtitle-0"
+                      name="subtitles[]"
+                      placeholder="Enter subtitle"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="news-paragraph-0">Paragraph</label>
+                    <textarea
+                      id="news-paragraph-0"
+                      name="paragraphs[]"
+                      rows="4"
+                      placeholder="Enter paragraph content"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add Content Controls -->
+              <div class="add-content-controls">
+                <button
+                  type="button"
+                  id="addNewsParagraph"
+                  class="add-content-btn"
+                >
+                  <i class="fas fa-paragraph"></i> Add Paragraph
+                </button>
+                <button type="button" id="addNewsImage" class="add-content-btn">
+                  <i class="fas fa-image"></i> Add Image
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Section -->
+            <div class="form-actions">
+              <button type="button" id="previewNews" class="preview-btn">
+                Preview
+              </button>
+              <button type="submit" class="submit-btn">Create News</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Manage News Section -->
+        <section id="manageNews-section" class="news-manager tab-content">
+          <h2>Manage News Articles</h2>
+
+          <!-- News Cards Container -->
+          <div class="news-cards-container">
+            <% if (typeof newsArticles !== 'undefined' && newsArticles.length >
+            0) { %> <% newsArticles.forEach(function(news) { %>
+            <div class="news-card" data-id="<%= news._id %>">
+              <% if (news.featured) { %>
+              <div class="featured-badge">Featured</div>
+              <% } %>
+              <div class="news-card-image">
+                <% if (news.infoImage && news.infoImage.url) { %>
+                <img src="<%= news.infoImage.url %>" alt="<%= news.title %>" />
+                <% } else { %>
+                <img src="/images/placeholder.jpg" alt="<%= news.title %>" />
+                <% } %>
+              </div>
+              <div class="news-card-content">
+                <h3><%= news.title %></h3>
+                <div class="news-card-meta">
+                  <span
+                    ><i class="fas fa-user"></i> <%= news.author || 'Unknown'
+                    %></span
+                  >
+                  <span
+                    ><i class="fas fa-clock"></i> <%= new
+                    Date(news.publishDate).toLocaleDateString() %></span
+                  >
+                  <span class="news-card-category"
+                    ><i class="fas fa-tag"></i> <%= news.category || 'General'
+                    %></span
+                  >
+                </div>
+                <div class="news-card-actions">
+                  <button class="edit-news-btn" data-id="<%= news._id %>">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                  <a
+                    href="/news/<%= news.urlSlug %>"
+                    class="view-news-btn"
+                    target="_blank"
+                  >
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                </div>
+              </div>
+            </div>
+            <% }); %> <% } else { %>
+            <div class="no-news-message">
+              <i class="fas fa-newspaper"></i>
+              <p>No news articles found. Create your first news article!</p>
             </div>
             <% } %>
           </div>
@@ -558,6 +772,169 @@
             </form>
           </div>
         </div>
+
+        <!-- Edit News Panel -->
+        <div id="edit-news-panel" class="edit-panel">
+          <div class="edit-panel-content">
+            <div class="edit-panel-header">
+              <h2>Edit News Article</h2>
+              <button id="close-edit-news-panel" class="close-btn">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <form
+              id="editNewsForm"
+              class="wiki-form"
+              enctype="multipart/form-data"
+            >
+              <!-- Hidden input for news ID -->
+              <input type="hidden" id="editNewsId" name="id" />
+
+              <!-- News Title Section -->
+              <div class="form-section">
+                <h3>Title</h3>
+                <div class="form-group">
+                  <label for="editNewsTitle">Main Title</label>
+                  <input
+                    type="text"
+                    id="editNewsTitle"
+                    name="title"
+                    required
+                    placeholder="Enter news title"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="editNewsUrlSlug">URL Slug</label>
+                  <input
+                    type="text"
+                    id="editNewsUrlSlug"
+                    name="urlSlug"
+                    placeholder="Enter URL slug (optional)"
+                  />
+                  <p class="field-hint">
+                    Leave empty to generate automatically from title
+                  </p>
+                </div>
+              </div>
+
+              <!-- News Category and Featured Section -->
+              <div class="form-section">
+                <h3>News Details</h3>
+                <div class="form-group">
+                  <label for="editNewsCategory">Category</label>
+                  <input
+                    type="text"
+                    id="editNewsCategory"
+                    name="category"
+                    placeholder="Enter category (e.g., Politics, Sports, Technology)"
+                    list="newsCategories"
+                  />
+                  <datalist id="newsCategories">
+                    <% if (typeof newsCategories !== 'undefined' &&
+                    newsCategories.length > 0) { %> <%
+                    newsCategories.forEach(function(category) { %>
+                    <option value="<%= category %>"><% }); %> <% } %></option>
+                  </datalist>
+                </div>
+                <div class="form-group">
+                  <label for="editNewsPublishDate">Publish Date</label>
+                  <input
+                    type="date"
+                    id="editNewsPublishDate"
+                    name="publishDate"
+                  />
+                </div>
+                <div class="form-group checkbox-group">
+                  <input
+                    type="checkbox"
+                    id="editNewsFeatured"
+                    name="featured"
+                  />
+                  <label for="editNewsFeatured">Featured Article</label>
+                </div>
+              </div>
+
+              <!-- Info Table Section -->
+              <div class="form-section">
+                <h3>Info Table</h3>
+
+                <!-- Info Table Image Upload -->
+                <div class="form-group">
+                  <label for="editNewsInfoImage">Info Table Image</label>
+                  <div class="image-upload-container">
+                    <div class="image-preview" id="editNewsInfoImagePreview">
+                      <i class="fas fa-image"></i>
+                      <span>No image selected</span>
+                    </div>
+                    <div class="image-upload-controls">
+                      <label class="upload-btn">
+                        <i class="fas fa-upload"></i> Upload Image
+                        <input
+                          type="file"
+                          id="editNewsInfoImage"
+                          name="infoImage"
+                          accept="image/*"
+                          hidden
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Info Table Fields -->
+                <div class="form-group">
+                  <label>Info Table Fields</label>
+                  <div id="editNewsInfoTableFields" class="info-table-fields">
+                    <!-- Fields will be populated dynamically -->
+                  </div>
+                  <button
+                    type="button"
+                    id="editAddNewsInfoField"
+                    class="add-field-btn"
+                  >
+                    <i class="fas fa-plus"></i> Add Field
+                  </button>
+                </div>
+              </div>
+
+              <!-- Content Section -->
+              <div class="form-section">
+                <h3>Content</h3>
+
+                <div id="editNewsContentSections" class="content-sections">
+                  <!-- Content sections will be populated dynamically -->
+                </div>
+
+                <!-- Add Content Controls -->
+                <div class="add-content-controls">
+                  <button
+                    type="button"
+                    id="editAddNewsParagraph"
+                    class="add-content-btn"
+                  >
+                    <i class="fas fa-paragraph"></i> Add Paragraph
+                  </button>
+                  <button
+                    type="button"
+                    id="editAddNewsImage"
+                    class="add-content-btn"
+                  >
+                    <i class="fas fa-image"></i> Add Image
+                  </button>
+                </div>
+              </div>
+
+              <!-- Submit Section -->
+              <div class="form-actions">
+                <button type="button" id="deleteNews" class="delete-btn">
+                  <i class="fas fa-trash"></i> Delete News
+                </button>
+                <button type="submit" class="submit-btn">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -709,6 +1086,26 @@
         <div class="modal-footer">
           <button class="cancel-btn">Cancel</button>
           <button class="delete-btn" id="confirmDeleteTweet">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- News Delete Confirmation Modal -->
+    <div id="deleteNewsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Confirm Deletion</h3>
+          <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p>
+            Are you sure you want to delete this news article? This action
+            cannot be undone.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelNewsDelete" class="cancel-btn">Cancel</button>
+          <button id="confirmNewsDelete" class="confirm-btn">Delete</button>
         </div>
       </div>
     </div>

@@ -14,6 +14,7 @@
 :root {
   /* Color palette - matching wiki.css */
   --primary-color: #5665e9;
+  --primary-rgb: 86, 101, 233; /* RGB values for primary color */
   --primary-hover: #4554d6;
   --primary-light: #e8ebff;
   --neutral-100: #f7f9fc;
@@ -318,7 +319,8 @@ body.edit-panel-open {
 }
 
 /* Add padding to the edit form */
-#editWikiForm {
+#editWikiForm,
+#editNewsForm {
   padding: 2rem;
 }
 
@@ -378,19 +380,21 @@ body.edit-panel-open {
   width: 100%;
   max-width: 500px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
+  position: relative;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--neutral-200);
 }
 
 .modal-header h3 {
   margin: 0;
-  color: var(--neutral-900);
+  color: var(--primary-color);
 }
 
 .close-modal {
@@ -407,15 +411,15 @@ body.edit-panel-open {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 2rem;
 }
 
 .modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid var(--neutral-200);
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--neutral-200);
 }
 
 .cancel-btn {
@@ -427,10 +431,30 @@ body.edit-panel-open {
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s;
+  min-width: 100px;
+  text-align: center;
 }
 
 .cancel-btn:hover {
   background: var(--neutral-300);
+}
+
+/* Confirm button for modals */
+.confirm-btn {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  min-width: 100px;
+  text-align: center;
+}
+
+.confirm-btn:hover {
+  background: var(--danger-hover);
 }
 
 /* Form sections */
@@ -726,6 +750,21 @@ body.edit-panel-open {
     padding: 1rem;
   }
 
+  /* Make tabs responsive */
+  .dashboard-tabs {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.25rem;
+  }
+
+  .tab-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    flex: 1 1 auto;
+    text-align: center;
+    min-width: 120px;
+  }
+
   .wiki-creator,
   .wiki-manager {
     padding: 1rem;
@@ -758,6 +797,28 @@ body.edit-panel-open {
 
   .edit-panel-content {
     max-height: 95vh;
+  }
+}
+
+/* Additional styles for very small screens */
+@media (max-width: 480px) {
+  .dashboard-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tab-btn {
+    width: 100%;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    text-align: left;
+    padding: 0.75rem;
+  }
+
+  .tab-btn.active {
+    border-bottom-color: transparent;
+    border-left-color: var(--primary-color);
+    background-color: rgba(var(--primary-rgb), 0.1);
   }
 }
 
@@ -1019,4 +1080,254 @@ body.edit-panel-open {
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+
+/* News manager */
+.news-manager {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: var(--section-spacing);
+}
+
+.news-manager h2 {
+  margin-bottom: var(--element-spacing);
+  color: var(--primary-color);
+  font-size: 1.5rem;
+}
+
+/* News cards container */
+.news-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* News card */
+.news-card {
+  background-color: var(--neutral-100);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.news-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.featured-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.news-card-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.news-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.news-card:hover .news-card-image img {
+  transform: scale(1.05);
+}
+
+.news-card-content {
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-card-content h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--neutral-900);
+}
+
+.news-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  color: var(--neutral-700);
+}
+
+.news-card-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.news-card-category {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.news-card-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-news-btn,
+.view-news-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.edit-news-btn {
+  background-color: var(--neutral-200);
+  color: var(--neutral-800);
+}
+
+.edit-news-btn:hover {
+  background-color: var(--neutral-300);
+}
+
+.view-news-btn {
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+}
+
+.view-news-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* No news message */
+.no-news-message {
+  text-align: center;
+  padding: 3rem;
+  color: var(--neutral-500);
+  background: var(--neutral-100);
+  border-radius: 8px;
+  border: 1px dashed var(--neutral-300);
+}
+
+.no-news-message i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--neutral-300);
+}
+
+.no-news-message p {
+  font-size: 1.1rem;
+}
+
+/* Edit news panel */
+#edit-news-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+#edit-news-panel.active {
+  display: flex;
+}
+
+#edit-news-panel .edit-panel-content {
+  background: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  padding: 0;
+}
+
+#edit-news-panel .edit-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--neutral-200);
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+}
+
+#edit-news-panel .edit-panel-header h2 {
+  color: var(--primary-color);
+  margin: 0;
+}
+
+#edit-news-panel .close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--neutral-700);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+#edit-news-panel .close-btn:hover {
+  color: var(--danger-color);
+}
+
+#editNewsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex-grow: 1;
+}
+
+/* Checkbox group styling */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+/* Field hint */
+.field-hint {
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+  margin-top: 0.25rem;
 }

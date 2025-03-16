@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ÇüngoNews</title>
+    <link rel="stylesheet" href="/css/cungonews.css" />
+    <!-- Using Montserrat font to match existing theme -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="news-container">
+      <!-- Header section -->
+      <header class="news-header">
+        <div class="header-content">
+          <h1>Çüngo News</h1>
+          <p>Stay updated with the latest from Çüngoland</p>
+        </div>
+        <% if (locals.user) { %>
+        <div class="header-actions">
+          <a href="/api/dashboard" class="dashboard-btn">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </div>
+        <% } %>
+      </header>
+
+      <!-- Main content -->
+      <main class="news-content">
+        <!-- Category filter section -->
+        <div class="category-filter">
+          <button class="category-btn active" data-category="all">All</button>
+          <% if (typeof categories !== 'undefined' && categories.length > 0) {
+          %> <% categories.forEach(function(category) { %>
+          <button class="category-btn" data-category="<%= category %>">
+            <%= category %>
+          </button>
+          <% }); %> <% } %>
+        </div>
+
+        <!-- News cards section -->
+        <div class="news-cards-section">
+          <h2>Latest News</h2>
+
+          <!-- News Cards Container -->
+          <div class="news-cards-container">
+            <% if (typeof newsArticles !== 'undefined' && newsArticles.length >
+            0) { %> <% newsArticles.forEach(function(news) { %>
+            <div
+              class="news-card"
+              data-slug="<%= news.urlSlug %>"
+              data-category="<%= news.category %>"
+            >
+              <% if (news.featured) { %>
+              <div class="featured-badge">Featured</div>
+              <% } %>
+              <div class="news-card-image">
+                <img
+                  src="<%= news.infoImage?.url || '/images/placeholder.jpg' %>"
+                  alt="<%= news.title %>"
+                />
+              </div>
+              <div class="news-card-content">
+                <h3><%= news.title %></h3>
+                <div class="news-card-meta">
+                  <span>
+                    <i class="fas fa-clock"></i> <%= new
+                    Date(news.publishDate).toLocaleDateString() %>
+                  </span>
+                  <span class="news-card-category"><%= news.category %></span>
+                </div>
+              </div>
+            </div>
+            <% }); %> <% } else { %>
+            <div class="no-news-message">
+              <i class="fas fa-newspaper"></i>
+              <p>
+                No news found. Create your first news article in the dashboard!
+              </p>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </main>
+
+      <!-- Footer section -->
+      <footer class="news-footer">
+        <p>
+          &copy; <%= new Date().getFullYear() %> Çüngoland. All rights reserved.
+        </p>
+      </footer>
+    </div>
+
+    <!-- Include JavaScript -->
+    <script src="/js/cungonews.js"></script>
+  </body>
+</html>

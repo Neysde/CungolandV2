@@ -32,11 +32,54 @@ document.addEventListener("DOMContentLoaded", function () {
   const editAddImage = document.getElementById("editAddImage");
   const deleteWikiBtn = document.getElementById("deleteWiki");
 
+  // DOM Elements - Create News
+  const newsForm = document.getElementById("newsForm");
+  const newsTitle = document.getElementById("newsTitle");
+  const newsCategory = document.getElementById("newsCategory");
+  const newsPublishDate = document.getElementById("newsPublishDate");
+  const newsFeatured = document.getElementById("newsFeatured");
+  const newsInfoImage = document.getElementById("newsInfoImage");
+  const newsInfoImagePreview = document.getElementById("newsInfoImagePreview");
+  const newsInfoTableFields = document.getElementById("newsInfoTableFields");
+  const addNewsInfoField = document.getElementById("addNewsInfoField");
+  const newsContentSections = document.getElementById("newsContentSections");
+  const addNewsParagraph = document.getElementById("addNewsParagraph");
+  const addNewsImage = document.getElementById("addNewsImage");
+  const previewNews = document.getElementById("previewNews");
+
+  // DOM Elements - Edit News
+  const editNewsPanel = document.getElementById("edit-news-panel");
+  const closeEditNewsPanel = document.getElementById("close-edit-news-panel");
+  const editNewsForm = document.getElementById("editNewsForm");
+  const editNewsId = document.getElementById("editNewsId");
+  const editNewsTitle = document.getElementById("editNewsTitle");
+  const editNewsUrlSlug = document.getElementById("editNewsUrlSlug");
+  const editNewsCategory = document.getElementById("editNewsCategory");
+  const editNewsPublishDate = document.getElementById("editNewsPublishDate");
+  const editNewsFeatured = document.getElementById("editNewsFeatured");
+  const editNewsInfoImage = document.getElementById("editNewsInfoImage");
+  const editNewsInfoImagePreview = document.getElementById(
+    "editNewsInfoImagePreview"
+  );
+  const editNewsInfoTableFields = document.getElementById(
+    "editNewsInfoTableFields"
+  );
+  const editAddNewsInfoField = document.getElementById("editAddNewsInfoField");
+  const editNewsContentSections = document.getElementById(
+    "editNewsContentSections"
+  );
+  const editAddNewsParagraph = document.getElementById("editAddNewsParagraph");
+  const editAddNewsImage = document.getElementById("editAddNewsImage");
+  const deleteNewsBtn = document.getElementById("deleteNews");
+
   // DOM Elements - Delete Modal
   const deleteModal = document.getElementById("deleteModal");
+  const deleteNewsModal = document.getElementById("deleteNewsModal");
   const closeModal = document.querySelector(".close-modal");
   const cancelDelete = document.getElementById("cancelDelete");
   const confirmDelete = document.getElementById("confirmDelete");
+  const cancelNewsDelete = document.getElementById("cancelNewsDelete");
+  const confirmNewsDelete = document.getElementById("confirmNewsDelete");
 
   // DOM Elements - Tabs
   const tabBtns = document.querySelectorAll(".tab-btn");
@@ -52,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Counter for generating unique IDs
   let sectionCounter = 1;
   let currentWikiId = null;
+  let currentNewsId = null;
 
   /**
    * Tab functionality
@@ -93,6 +137,32 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /**
+   * Generate URL slug from title for news
+   */
+  if (newsTitle) {
+    newsTitle.addEventListener("input", function () {
+      const title = this.value;
+      const slug = generateSlug(title);
+
+      // Set hidden input value for URL slug
+      document.getElementById("newsUrlHidden").value = slug;
+    });
+  }
+
+  /**
+   * Generate URL slug from title in edit news form
+   */
+  if (editNewsTitle) {
+    editNewsTitle.addEventListener("input", function () {
+      const title = this.value;
+      const slug = generateSlug(title);
+
+      // Set hidden input value for URL slug
+      editNewsUrlSlug.value = slug;
+    });
+  }
+
+  /**
    * Generate slug from title
    * @param {string} title - The title to convert to a slug
    * @returns {string} - The generated slug
@@ -118,6 +188,24 @@ document.addEventListener("DOMContentLoaded", function () {
   editInfoImage.addEventListener("change", function () {
     handleImageUpload(this, editInfoImagePreview);
   });
+
+  /**
+   * Handle info image upload for news
+   */
+  if (newsInfoImage) {
+    newsInfoImage.addEventListener("change", function () {
+      handleImageUpload(this, newsInfoImagePreview);
+    });
+  }
+
+  /**
+   * Handle info image upload for edit news
+   */
+  if (editNewsInfoImage) {
+    editNewsInfoImage.addEventListener("change", function () {
+      handleImageUpload(this, editNewsInfoImagePreview);
+    });
+  }
 
   /**
    * Handle image upload and preview
@@ -159,6 +247,24 @@ document.addEventListener("DOMContentLoaded", function () {
   editAddInfoField.addEventListener("click", function () {
     addInfoFieldToContainer(editInfoTableFields);
   });
+
+  /**
+   * Add info field to news form
+   */
+  if (addNewsInfoField) {
+    addNewsInfoField.addEventListener("click", function () {
+      addInfoFieldToContainer(newsInfoTableFields);
+    });
+  }
+
+  /**
+   * Add info field to edit news form
+   */
+  if (editAddNewsInfoField) {
+    editAddNewsInfoField.addEventListener("click", function () {
+      addInfoFieldToContainer(editNewsInfoTableFields);
+    });
+  }
 
   /**
    * Add info field to container
@@ -211,6 +317,24 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /**
+   * Add paragraph to news form
+   */
+  if (addNewsParagraph) {
+    addNewsParagraph.addEventListener("click", function () {
+      addParagraphToContainer(newsContentSections);
+    });
+  }
+
+  /**
+   * Add paragraph to edit news form
+   */
+  if (editAddNewsParagraph) {
+    editAddNewsParagraph.addEventListener("click", function () {
+      addParagraphToContainer(editNewsContentSections);
+    });
+  }
+
+  /**
    * Add paragraph to container
    * @param {HTMLElement} container - The container to add the paragraph to
    */
@@ -248,6 +372,24 @@ document.addEventListener("DOMContentLoaded", function () {
   editAddImage.addEventListener("click", function () {
     addImageToContainer(editContentSections);
   });
+
+  /**
+   * Add image to news form
+   */
+  if (addNewsImage) {
+    addNewsImage.addEventListener("click", function () {
+      addImageToContainer(newsContentSections);
+    });
+  }
+
+  /**
+   * Add image to edit news form
+   */
+  if (editAddNewsImage) {
+    editAddNewsImage.addEventListener("click", function () {
+      addImageToContainer(editNewsContentSections);
+    });
+  }
 
   /**
    * Add image to container
@@ -489,264 +631,51 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {string} wikiId - The ID of the wiki to edit
    */
   function openEditPanel(wikiId) {
-    currentWikiId = wikiId;
-
     // Show loading state
     editPanel.classList.add("active");
-
-    // Prevent body scrolling
     document.body.classList.add("edit-panel-open");
 
-    // Store a reference to the edit form
-    const editFormContainer = document.querySelector(".edit-panel-content");
-
-    // Show loading indicator
-    editWikiForm.innerHTML =
-      '<div class="loading" style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i><p>Loading wiki data...</p></div>';
-
-    // Fetch wiki data without logging
+    // Fetch wiki data
     fetch(`/api/wiki/${wikiId}/data`)
-      .then((response) => {
-        if (!response.ok) {
-          return response.text().then((text) => {
-            try {
-              const json = JSON.parse(text);
-              throw new Error(json.message || "Failed to fetch wiki data");
-            } catch (e) {
-              throw new Error(
-                `Failed to fetch wiki data: ${response.status} ${response.statusText}`
-              );
-            }
-          });
-        }
-
-        return response.text().then((text) => {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            throw new Error("Invalid JSON response from server");
-          }
-        });
-      })
+      .then((response) => response.json())
       .then((wiki) => {
-        // Check if the wiki data is valid
-        if (!wiki || typeof wiki !== "object") {
-          throw new Error("Invalid wiki data received");
+        // Store current wiki ID
+        currentWikiId = wikiId;
+
+        // Set form values
+        editWikiId.value = wikiId;
+        editWikiTitle.value = wiki.title;
+        editWikiUrlSlug.value = wiki.urlSlug;
+
+        // Set info image preview
+        if (wiki.infoImage && wiki.infoImage.url) {
+          editInfoImagePreview.innerHTML = `<img src="${
+            wiki.infoImage.url
+          }" alt="${wiki.infoImage.alt || wiki.title}">`;
+        } else {
+          editInfoImagePreview.innerHTML =
+            '<i class="fas fa-image"></i><span>No image selected</span>';
         }
 
-        // Recreate the edit form with the correct structure
-        editWikiForm.innerHTML = `
-          <!-- Hidden Wiki ID -->
-          <input type="hidden" id="editWikiId" name="wikiId" value="${
-            wiki._id
-          }">
-          
-          <!-- Wiki Title Section -->
-          <div class="form-section">
-            <h3>Title</h3>
-            <div class="form-group">
-              <label for="editWikiTitle">Main Title</label>
-              <input type="text" id="editWikiTitle" name="title" required placeholder="Enter wiki title" value="${
-                wiki.title || ""
-              }">
-              <!-- Hidden input for URL slug -->
-              <input type="hidden" id="editWikiUrlSlug" name="urlSlug" value="${
-                wiki.urlSlug || ""
-              }">
-            </div>
-          </div>
-
-          <!-- Info Table Section -->
-          <div class="form-section">
-            <h3>Info Table</h3>
-            
-            <!-- Info Table Image Upload -->
-            <div class="form-group">
-              <label for="editInfoImage">Info Table Image</label>
-              <div class="image-upload-container">
-                <div class="image-preview" id="editInfoImagePreview">
-                  ${
-                    wiki.infoImage && wiki.infoImage.url
-                      ? `<img src="${wiki.infoImage.url}" alt="${
-                          wiki.infoImage.alt || wiki.title
-                        }">`
-                      : `<i class="fas fa-image"></i><span>No image selected</span>`
-                  }
-                </div>
-                <div class="image-upload-controls">
-                  <label class="upload-btn">
-                    <i class="fas fa-upload"></i> Upload New Image
-                    <input type="file" id="editInfoImage" name="infoImage" accept="image/*" hidden>
-                  </label>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Info Table Fields -->
-            <div class="form-group">
-              <label>Info Table Fields</label>
-              <div id="editInfoTableFields" class="info-table-fields">
-                <!-- Will be populated dynamically -->
-              </div>
-              <button type="button" id="editAddInfoField" class="add-field-btn">
-                <i class="fas fa-plus"></i> Add Field
-              </button>
-            </div>
-          </div>
-
-          <!-- Content Section -->
-          <div class="form-section">
-            <h3>Content</h3>
-            
-            <div id="editContentSections" class="content-sections">
-              <!-- Will be populated dynamically -->
-            </div>
-            
-            <!-- Add Content Controls -->
-            <div class="add-content-controls">
-              <button type="button" id="editAddParagraph" class="add-content-btn">
-                <i class="fas fa-paragraph"></i> Add Paragraph
-              </button>
-              <button type="button" id="editAddImage" class="add-content-btn">
-                <i class="fas fa-image"></i> Add Image
-              </button>
-            </div>
-          </div>
-
-          <!-- Submit Section -->
-          <div class="form-actions">
-            <button type="button" id="deleteWiki" class="delete-btn">
-              <i class="fas fa-trash"></i> Delete Wiki
-            </button>
-            <button type="submit" class="submit-btn">Save Changes</button>
-          </div>
-        `;
-
-        // Get references to the newly created elements
-        const editWikiId = document.getElementById("editWikiId");
-        const editWikiTitle = document.getElementById("editWikiTitle");
-        const editWikiUrlSlug = document.getElementById("editWikiUrlSlug");
-        const editInfoImage = document.getElementById("editInfoImage");
-        const editInfoImagePreview = document.getElementById(
-          "editInfoImagePreview"
-        );
-        const editInfoTableFields = document.getElementById(
-          "editInfoTableFields"
-        );
-        const editContentSections = document.getElementById(
-          "editContentSections"
-        );
-        const editAddInfoField = document.getElementById("editAddInfoField");
-        const editAddParagraph = document.getElementById("editAddParagraph");
-        const editAddImage = document.getElementById("editAddImage");
-        const deleteWikiBtn = document.getElementById("deleteWiki");
-
-        // Attach event listeners
-        if (editWikiTitle) {
-          editWikiTitle.addEventListener("input", function () {
-            const title = this.value;
-            const slug = generateSlug(title);
-            if (editWikiUrlSlug) {
-              editWikiUrlSlug.value = slug;
-            }
-          });
-        }
-
-        if (editInfoImage) {
-          editInfoImage.addEventListener("change", function () {
-            if (editInfoImagePreview) {
-              handleImageUpload(this, editInfoImagePreview);
-            }
-          });
-        }
-
-        if (editAddInfoField) {
-          editAddInfoField.addEventListener("click", function () {
-            if (editInfoTableFields) {
-              addInfoFieldToContainer(editInfoTableFields);
-            }
-          });
-        }
-
-        if (editAddParagraph) {
-          editAddParagraph.addEventListener("click", function () {
-            if (editContentSections) {
-              addParagraphToContainer(editContentSections);
-            }
-          });
-        }
-
-        if (editAddImage) {
-          editAddImage.addEventListener("click", function () {
-            if (editContentSections) {
-              addImageToContainer(editContentSections);
-            }
-          });
-        }
-
-        if (deleteWikiBtn) {
-          deleteWikiBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            deleteModal.classList.add("active");
-          });
-        }
-
-        // Populate info table fields
-        if (
-          editInfoTableFields &&
-          wiki.infoFields &&
-          wiki.infoFields.length > 0
-        ) {
+        // Clear and populate info fields
+        editInfoTableFields.innerHTML = "";
+        if (wiki.infoFields && wiki.infoFields.length > 0) {
           wiki.infoFields.forEach((field) => {
-            const tempContainer = document.createElement("div");
-            tempContainer.innerHTML = infoFieldTemplate;
-
-            const newField = tempContainer.firstElementChild;
-            const inputs = newField.querySelectorAll("input");
-            if (inputs.length >= 2) {
-              inputs[0].value = field.label || "";
-              inputs[1].value = field.value || "";
-            }
-
-            const removeButton = newField.querySelector(".remove-field");
-            if (removeButton) {
-              removeButton.addEventListener("click", removeInfoField);
-            }
-
-            editInfoTableFields.appendChild(newField);
+            const fieldHTML = infoFieldTemplate
+              .replace(/::LABEL::/g, field.label)
+              .replace(/::VALUE::/g, field.value);
+            editInfoTableFields.insertAdjacentHTML("beforeend", fieldHTML);
           });
         }
 
-        // Parse and populate content
-        if (editContentSections && wiki.content) {
-          parseAndPopulateContent(wiki.content, editContentSections);
-        }
-
-        // If no content sections were added, add a default paragraph section
-        if (editContentSections && editContentSections.children.length === 0) {
-          addParagraphToContainer(editContentSections);
-        }
+        // Parse content HTML to recreate content sections
+        parseAndPopulateContent(wiki.content, editContentSections);
       })
       .catch((error) => {
-        // Only log errors to console
-        console.error("Error in edit panel:", error.message);
-
-        editWikiForm.innerHTML = `
-          <div class="error" style="text-align: center; padding: 2rem; color: var(--danger-color);">
-            <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-            <p>${error.message}</p>
-            <button id="close-error" class="cancel-btn" style="margin-top: 1rem;">Close</button>
-          </div>
-        `;
-
-        // Add event listener to close button
-        const closeErrorBtn = document.getElementById("close-error");
-        if (closeErrorBtn) {
-          closeErrorBtn.addEventListener("click", function () {
-            editPanel.classList.remove("active");
-            document.body.classList.remove("edit-panel-open");
-          });
-        }
+        console.error("Error:", error);
+        alert("An error occurred while loading the wiki.");
+        editPanel.classList.remove("active");
+        document.body.classList.remove("edit-panel-open");
       });
   }
 
@@ -823,32 +752,38 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
-   * Add paragraph section with content
+   * Add paragraph with content to container
    * @param {HTMLElement} container - The container to add the paragraph to
-   * @param {string} subtitle - The subtitle
-   * @param {string} paragraph - The paragraph content
+   * @param {string} subtitle - The subtitle text
+   * @param {string} paragraph - The paragraph text
    */
   function addParagraphWithContent(container, subtitle, paragraph) {
+    // Create a temporary container
     const tempContainer = document.createElement("div");
     tempContainer.innerHTML = paragraphTemplate.replace(
       /{index}/g,
       sectionCounter++
     );
 
+    // Get the new section element
     const newSection = tempContainer.firstElementChild;
-    const subtitleInput = newSection.querySelector('input[name="subtitles[]"]');
+
+    // Set subtitle and paragraph values
+    const subtitleInput = newSection.querySelector('input[name^="subtitles"]');
     const paragraphTextarea = newSection.querySelector(
-      'textarea[name="paragraphs[]"]'
+      'textarea[name^="paragraphs"]'
     );
 
-    if (subtitleInput) subtitleInput.value = subtitle;
-    if (paragraphTextarea) paragraphTextarea.value = paragraph;
+    if (subtitleInput) subtitleInput.value = subtitle || "";
+    if (paragraphTextarea) paragraphTextarea.value = paragraph || "";
 
+    // Add event listener to the remove button
     const removeButton = newSection.querySelector(".remove-section");
     if (removeButton) {
       removeButton.addEventListener("click", removeContentSection);
     }
 
+    // Add the new section to the DOM
     container.appendChild(newSection);
   }
 
@@ -1100,4 +1035,424 @@ document.addEventListener("DOMContentLoaded", function () {
 
     return hasContent;
   }
+
+  /**
+   * Handle news form submission
+   */
+  if (newsForm) {
+    newsForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      submitNewsForm();
+    });
+  }
+
+  /**
+   * Handle edit news form submission
+   */
+  if (editNewsForm) {
+    editNewsForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      updateNews();
+    });
+  }
+
+  /**
+   * Handle edit news button click
+   */
+  document.addEventListener("click", function (e) {
+    if (
+      e.target.classList.contains("edit-news-btn") ||
+      e.target.closest(".edit-news-btn")
+    ) {
+      const button = e.target.classList.contains("edit-news-btn")
+        ? e.target
+        : e.target.closest(".edit-news-btn");
+      const newsId = button.getAttribute("data-id");
+      loadNewsForEditing(newsId);
+    }
+  });
+
+  /**
+   * Close edit news panel
+   */
+  if (closeEditNewsPanel) {
+    closeEditNewsPanel.addEventListener("click", function () {
+      editNewsPanel.classList.remove("active");
+      document.body.classList.remove("edit-panel-open");
+      currentNewsId = null;
+    });
+  }
+
+  /**
+   * Handle delete news button click
+   */
+  if (deleteNewsBtn) {
+    deleteNewsBtn.addEventListener("click", function () {
+      deleteNewsModal.classList.add("active");
+    });
+  }
+
+  /**
+   * Handle cancel news delete button click
+   */
+  if (cancelNewsDelete) {
+    cancelNewsDelete.addEventListener("click", function () {
+      deleteNewsModal.classList.remove("active");
+    });
+  }
+
+  /**
+   * Handle confirm news delete button click
+   */
+  if (confirmNewsDelete) {
+    confirmNewsDelete.addEventListener("click", function () {
+      deleteNews();
+    });
+  }
+
+  /**
+   * Submit news form
+   * Creates a new news article
+   */
+  function submitNewsForm() {
+    // Create FormData object
+    const formData = new FormData(newsForm);
+
+    // Add featured flag as boolean
+    formData.set("featured", newsFeatured.checked);
+
+    // Show loading state
+    const submitBtn = newsForm.querySelector(".submit-btn");
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Creating...";
+    submitBtn.disabled = true;
+
+    // Submit form
+    fetch("/api/news/create", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Show success message
+          alert("News article created successfully!");
+
+          // Reset form
+          newsForm.reset();
+          newsInfoImagePreview.innerHTML =
+            '<i class="fas fa-image"></i><span>No image selected</span>';
+          newsInfoTableFields.innerHTML = "";
+          newsContentSections.innerHTML = "";
+          addParagraphToContainer(newsContentSections);
+
+          // Redirect to the new news article
+          window.open(data.url, "_blank");
+
+          // Refresh the page to update the news list
+          window.location.reload();
+        } else {
+          // Show error message
+          alert(`Error: ${data.message}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("An error occurred while creating the news article.");
+      })
+      .finally(() => {
+        // Reset button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      });
+  }
+
+  /**
+   * Load news article for editing
+   * @param {string} newsId - The ID of the news article to edit
+   */
+  function loadNewsForEditing(newsId) {
+    currentNewsId = newsId;
+
+    // Show loading state
+    editNewsPanel.classList.add("active");
+    document.body.classList.add("edit-panel-open");
+
+    // Fetch news data
+    fetch(`/api/news/${newsId}/data`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((news) => {
+        // Clear existing content sections
+        editNewsContentSections.innerHTML = "";
+
+        // Set form values
+        editNewsId.value = newsId;
+        editNewsTitle.value = news.title || "";
+        editNewsUrlSlug.value = news.urlSlug || "";
+        editNewsCategory.value = news.category || "";
+
+        // Format and set publish date
+        if (news.publishDate) {
+          const publishDate = new Date(news.publishDate);
+          editNewsPublishDate.value = publishDate.toISOString().split("T")[0];
+        } else {
+          editNewsPublishDate.value = "";
+        }
+
+        // Set featured checkbox
+        editNewsFeatured.checked = news.featured || false;
+
+        // Set info image preview
+        if (news.infoImage && news.infoImage.url) {
+          editNewsInfoImagePreview.innerHTML = `<img src="${
+            news.infoImage.url
+          }" alt="${news.infoImage.alt || news.title}">`;
+        } else {
+          editNewsInfoImagePreview.innerHTML =
+            '<i class="fas fa-image"></i><span>No image selected</span>';
+        }
+
+        // Clear and populate info fields
+        editNewsInfoTableFields.innerHTML = "";
+        if (news.infoFields && news.infoFields.length > 0) {
+          news.infoFields.forEach((field, index) => {
+            const fieldHTML = `
+              <div class="info-field">
+                <div class="field-inputs">
+                  <input type="text" name="infoTable[fields][${index}][label]" placeholder="Label" value="${
+              field.label || ""
+            }" required>
+                  <input type="text" name="infoTable[fields][${index}][value]" placeholder="Value" value="${
+              field.value || ""
+            }" required>
+                </div>
+                <button type="button" class="remove-field-btn" onclick="removeInfoField(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            `;
+            editNewsInfoTableFields.insertAdjacentHTML("beforeend", fieldHTML);
+          });
+        }
+
+        // Clear content sections
+        editNewsContentSections.innerHTML = "";
+
+        // Parse HTML content to extract subtitles and paragraphs
+        if (news.content) {
+          // Create a temporary container to parse the HTML
+          const tempContainer = document.createElement("div");
+          tempContainer.innerHTML = news.content;
+
+          // Find all h2 (subtitles) and p (paragraphs) elements
+          const h2Elements = tempContainer.querySelectorAll("h2");
+          const pElements = tempContainer.querySelectorAll("p");
+
+          // If we have h2 elements, assume they are subtitles followed by paragraphs
+          if (h2Elements.length > 0) {
+            h2Elements.forEach((h2, index) => {
+              // Get the corresponding paragraph if available
+              const paragraph = pElements[index]
+                ? pElements[index].textContent
+                : "";
+
+              // Add a paragraph section with subtitle and content
+              addParagraphWithContent(
+                editNewsContentSections,
+                h2.textContent,
+                paragraph
+              );
+            });
+          } else {
+            // If no h2 elements, just add the content as a single paragraph
+            addParagraphWithContent(editNewsContentSections, "", news.content);
+          }
+        } else {
+          // Add at least one paragraph section if no content exists
+          addParagraphToContainer(editNewsContentSections);
+        }
+      })
+      .catch((error) => {
+        alert(`Error loading news article: ${error.message}`);
+        // Close the panel on error
+        editNewsPanel.classList.remove("active");
+        document.body.classList.remove("edit-panel-open");
+      });
+  }
+
+  /**
+   * Delete news article
+   */
+  function deleteNews() {
+    // Show loading state
+    const deleteBtn = confirmNewsDelete;
+    const originalText = deleteBtn.textContent;
+    deleteBtn.textContent = "Deleting...";
+    deleteBtn.disabled = true;
+
+    // Submit delete request
+    fetch(`/api/news/${currentNewsId}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          // Show success message
+          alert("News article deleted successfully!");
+
+          // Close modal and edit panel
+          deleteNewsModal.classList.remove("active");
+          editNewsPanel.classList.remove("active");
+          document.body.classList.remove("edit-panel-open");
+          currentNewsId = null;
+
+          // Refresh the page to update the news list
+          window.location.reload();
+        } else {
+          // Show error message
+          alert(`Error: ${data.message}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("An error occurred while deleting the news article.");
+      })
+      .finally(() => {
+        // Reset button state
+        deleteBtn.textContent = originalText;
+        deleteBtn.disabled = false;
+      });
+  }
+
+  /**
+   * Update news article
+   */
+  function updateNews() {
+    // Create FormData object
+    const formData = new FormData(editNewsForm);
+
+    // Add featured flag as boolean
+    formData.set("featured", editNewsFeatured.checked);
+
+    // Process content sections to create HTML content
+    const contentSections =
+      editNewsContentSections.querySelectorAll(".content-section");
+    let htmlContent = "";
+
+    contentSections.forEach((section) => {
+      if (section.classList.contains("paragraph-section")) {
+        const subtitle = section.querySelector(
+          'input[name^="subtitles"]'
+        ).value;
+        const paragraph = section.querySelector(
+          'textarea[name^="paragraphs"]'
+        ).value;
+
+        if (subtitle) {
+          htmlContent += `<h2>${subtitle}</h2>`;
+        }
+
+        if (paragraph) {
+          htmlContent += `<p>${paragraph}</p>`;
+        }
+      } else if (section.classList.contains("image-section")) {
+        const caption = section.querySelector(
+          'input[name^="imageCaptions"]'
+        ).value;
+        const imageUrl = section.querySelector('input[type="hidden"]')?.value;
+
+        if (imageUrl) {
+          htmlContent += `<div class="content-image">
+            <img src="${imageUrl}" alt="${caption || "Image"}">
+            ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+          </div>`;
+        }
+      }
+    });
+
+    // Set the content
+    formData.set("content", htmlContent);
+
+    // Show loading state
+    const submitBtn = editNewsForm.querySelector(".submit-btn");
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Saving...";
+    submitBtn.disabled = true;
+
+    // Submit form
+    fetch(`/api/news/${currentNewsId}/update`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          // Show success message
+          alert("News article updated successfully!");
+
+          // Close edit panel
+          editNewsPanel.classList.remove("active");
+          document.body.classList.remove("edit-panel-open");
+
+          // Refresh the page to update the news list
+          window.location.reload();
+        } else {
+          // Show error message
+          alert(`Error: ${data.message}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("An error occurred while updating the news article.");
+      })
+      .finally(() => {
+        // Reset button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      });
+  }
+
+  // Add event listeners to all edit wiki buttons
+  const editWikiButtons = document.querySelectorAll(".edit-wiki-btn");
+  editWikiButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      const wikiId = this.getAttribute("data-id");
+      openEditPanel(wikiId);
+    });
+  });
+
+  // Add event listeners to all edit news buttons
+  const editNewsButtons = document.querySelectorAll(".edit-news-btn");
+  editNewsButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      const newsId = this.getAttribute("data-id");
+      loadNewsForEditing(newsId);
+    });
+  });
+
+  // Add event listener to all close modal buttons
+  document.querySelectorAll(".close-modal").forEach((button) => {
+    button.addEventListener("click", function () {
+      // Find the closest modal and close it
+      const modal = this.closest(".modal");
+      if (modal) {
+        modal.classList.remove("active");
+      }
+    });
+  });
 });

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %> | ÇüngoNews</title>
+    <link rel="stylesheet" href="/css/cungonews.css" />
+    <!-- Using Montserrat font to match existing theme -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Additional styles specific to news article page */
+      .article-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      /* Adjust news-content for article page without header */
+      .news-content {
+        padding-top: 2rem;
+      }
+
+      .article-header {
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .article-title {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--neutral-900);
+      }
+
+      .article-meta {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        color: var(--neutral-700);
+        margin-bottom: 1rem;
+      }
+
+      .article-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .article-category {
+        display: inline-block;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      .article-featured {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+      }
+
+      .article-image {
+        width: 100%;
+        max-height: 400px;
+        overflow: hidden;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+      }
+
+      .article-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .info-table {
+        background-color: var(--neutral-100);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .info-table-row {
+        display: flex;
+        border-bottom: 1px solid var(--neutral-200);
+        padding: 0.75rem 0;
+      }
+
+      .info-table-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-table-label {
+        flex: 0 0 30%;
+        font-weight: 600;
+        color: var(--neutral-700);
+      }
+
+      .info-table-value {
+        flex: 0 0 70%;
+        color: var(--neutral-900);
+      }
+
+      .article-content {
+        line-height: 1.8;
+        color: var(--neutral-900);
+      }
+
+      .article-content h2 {
+        margin: 2rem 0 1rem;
+        color: var(--neutral-900);
+      }
+
+      .article-content p {
+        margin-bottom: 1.5rem;
+      }
+
+      .article-content .article-image {
+        margin: 2rem 0;
+      }
+
+      .image-caption {
+        text-align: center;
+        color: var(--neutral-700);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        transition: color 0.2s;
+      }
+
+      .back-link:hover {
+        color: var(--primary-hover);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="news-container">
+      <!-- Main content -->
+      <main class="news-content">
+        <div class="article-container">
+          <!-- Back link -->
+          <a href="/cungonews" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to News
+          </a>
+
+          <!-- Article header -->
+          <header class="article-header">
+            <h1 class="article-title"><%= title %></h1>
+            <div class="article-meta">
+              <span>
+                <i class="fas fa-calendar"></i> <%= new
+                Date(publishDate).toLocaleDateString() %>
+              </span>
+            </div>
+            <div>
+              <span class="article-category"><%= category || 'General' %></span>
+              <% if (featured) { %>
+              <span class="article-featured">Featured</span>
+              <% } %>
+            </div>
+          </header>
+
+          <!-- Article image -->
+          <% if (imageUrl) { %>
+          <div class="article-image">
+            <img src="<%= imageUrl %>" alt="<%= imageAlt %>" />
+          </div>
+          <% } %>
+
+          <!-- Info table -->
+          <% if (typeof additionalInfo !== 'undefined' && additionalInfo.length
+          > 0) { %>
+          <div class="info-table">
+            <% additionalInfo.forEach(function(info) { %>
+            <div class="info-table-row">
+              <div class="info-table-label"><%= info.label %></div>
+              <div class="info-table-value"><%= info.value %></div>
+            </div>
+            <% }); %>
+          </div>
+          <% } %>
+
+          <!-- Article content -->
+          <div class="article-content"><%- content %></div>
+        </div>
+      </main>
+
+      <!-- Footer section -->
+      <footer class="news-footer">
+        <p>
+          &copy; <%= new Date().getFullYear() %> Çüngoland. All rights reserved.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
