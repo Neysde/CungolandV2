@@ -14,6 +14,9 @@ body {
   margin-top: var(--header-height);
   padding: 2rem;
   min-height: calc(100vh - var(--header-height));
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Page title styles */

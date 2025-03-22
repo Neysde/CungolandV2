@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Çüngoland - Main Page</title>
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- Using Montserrat font for consistent branding -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <main class="main-content">
+      <!-- Hero Section with Image Carousel -->
+      <section class="hero-section">
+        <div class="image-carousel">
+          <div class="carousel-container">
+            <% if (photos && photos.length > 0) { %> <% photos.forEach((photo,
+            index) => { %>
+            <div class="carousel-slide">
+              <img src="<%= photo.imageUrl %>" alt="Çüngoland Photo" />
+              <div class="carousel-caption">
+                <p><%= photo.description %></p>
+              </div>
+            </div>
+            <% }) %> <% } else { %>
+            <div class="carousel-slide">
+              <div class="no-photos">
+                <i class="fas fa-images"></i>
+                <p>No photos available</p>
+              </div>
+            </div>
+            <% } %>
+          </div>
+          <button class="carousel-control prev" aria-label="Previous slide">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="carousel-control next" aria-label="Next slide">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- Çüngo Wiki Featured Section -->
+      <section class="featured-section wiki-section">
+        <div class="section-header">
+          <h2>Çüngo Wiki</h2>
+          <a href="/cungowiki" class="view-all-link"
+            >View All <i class="fas fa-arrow-right"></i
+          ></a>
+        </div>
+        <div class="cards-container">
+          <% if (wikis && wikis.length > 0) { %> <% wikis.forEach(wiki => { %>
+          <div class="feature-card wiki-card" data-slug="<%= wiki.urlSlug %>">
+            <div class="card-image">
+              <img
+                src="<%= wiki.infoImage?.url || '/images/placeholder.jpg' %>"
+                alt="<%= wiki.title %>"
+              />
+            </div>
+            <div class="card-content">
+              <h3><%= wiki.title %></h3>
+              <div class="card-meta">
+                <span
+                  ><i class="fas fa-clock"></i> <%= new
+                  Date(wiki.lastModified).toLocaleDateString() %></span
+                >
+              </div>
+            </div>
+          </div>
+          <% }) %> <% } else { %>
+          <div class="no-content-message">
+            <i class="fas fa-file-alt"></i>
+            <p>No wiki content found yet.</p>
+          </div>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- Çüngo News Featured Section -->
+      <section class="featured-section news-section">
+        <div class="section-header">
+          <h2>Çüngo News</h2>
+          <a href="/cungonews" class="view-all-link"
+            >View All <i class="fas fa-arrow-right"></i
+          ></a>
+        </div>
+        <div class="cards-container">
+          <% if (newsArticles && newsArticles.length > 0) { %> <%
+          newsArticles.forEach(news => { %>
+          <div class="feature-card news-card" data-slug="<%= news.urlSlug %>">
+            <% if (news.featured) { %>
+            <div class="featured-badge">Featured</div>
+            <% } %>
+            <div class="card-image">
+              <img
+                src="<%= news.infoImage?.url || '/images/placeholder.jpg' %>"
+                alt="<%= news.title %>"
+              />
+            </div>
+            <div class="card-content">
+              <h3><%= news.title %></h3>
+              <div class="card-meta">
+                <span
+                  ><i class="fas fa-clock"></i> <%= new
+                  Date(news.publishDate).toLocaleDateString() %></span
+                >
+                <span class="news-category"><%= news.category %></span>
+              </div>
+            </div>
+          </div>
+          <% }) %> <% } else { %>
+          <div class="no-content-message">
+            <i class="fas fa-newspaper"></i>
+            <p>No news content found yet.</p>
+          </div>
+          <% } %>
+        </div>
+      </section>
+    </main>
+
+    <!-- Include JavaScript -->
+    <script src="/js/index.js"></script>
+  </body>
+</html>

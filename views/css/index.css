@@ -1,0 +1,436 @@
+/* 
+ * index.css - Main Page Styling
+ * This file contains all the styles for the Çüngoland main page,
+ * including the image carousel, wiki and news sections.
+ */
+
+:root {
+  /* Color palette based on existing site theme */
+  --primary-color: #2c3e50;
+  --secondary-color: #3498db;
+  --accent-color: #e74c3c;
+  --light-color: #ecf0f1;
+  --dark-color: #2c3e50;
+  --text-color: #333;
+  --background-color: #f8f9fa;
+  --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --transition-speed: 0.3s;
+  --header-height: 84px; /* Match the header height from header.css */
+
+  /* Spacing - matching wiki page */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+
+  /* News section specific colors from cungonews.css */
+  --news-primary-color: #e95656;
+  --news-primary-hover: #d64545;
+  --news-primary-light: #ffe8e8;
+  --news-neutral-700: #495057;
+}
+
+/* General Styles */
+body {
+  font-family: "Montserrat", sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fix header styles for main page */
+body:has(.image-carousel) .main-header {
+  position: fixed !important;
+  top: 0 !important;
+  width: 100% !important;
+  z-index: 1000 !important;
+}
+
+/* Fix header container specific to main page */
+body:has(.image-carousel) .header-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  height: 100% !important;
+  padding: 0 var(--spacing-md) !important;
+}
+
+/* Fix site title for main page */
+body:has(.image-carousel) .site-title {
+  font-size: 1.5rem !important;
+  margin: 0 !important;
+}
+
+/* Fix login button for main page */
+body:has(.image-carousel) .login-btn {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 4px !important;
+  text-decoration: none !important;
+}
+
+/* Content area spacing */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-md);
+  margin-top: calc(
+    var(--header-height) + var(--spacing-md)
+  ); /* Apply adequate spacing below header */
+}
+
+section {
+  margin-bottom: 40px;
+}
+
+/* Hero Section with Carousel */
+.hero-section {
+  margin-bottom: 40px;
+}
+
+.image-carousel {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+}
+
+.carousel-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-slide {
+  position: relative;
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+/* Carousel indicators */
+.carousel-indicators {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.carousel-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.carousel-indicator.active {
+  background-color: white;
+  transform: scale(1.2);
+}
+
+.carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all var(--transition-speed);
+  z-index: 2;
+}
+
+.carousel-control:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-control.prev {
+  left: 10px;
+}
+
+.carousel-control.next {
+  right: 10px;
+}
+
+/* Swipe animation classes */
+.carousel-container.swiping {
+  transition: none;
+}
+
+.carousel-container.transition-left {
+  animation: slideLeft 0.5s forwards;
+}
+
+.carousel-container.transition-right {
+  animation: slideRight 0.5s forwards;
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.no-photos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: var(--light-color);
+  color: var(--text-color);
+  font-size: 24px;
+}
+
+.no-photos i {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: var(--secondary-color);
+}
+
+/* Featured Sections (Wiki & News) */
+.featured-section {
+  background-color: white;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: var(--card-shadow);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--light-color);
+  padding-bottom: 10px;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: var(--secondary-color);
+  font-size: 1.8rem;
+}
+
+.view-all-link {
+  color: var(--secondary-color);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  transition: color var(--transition-speed);
+}
+
+.view-all-link i {
+  margin-left: 5px;
+  transition: transform var(--transition-speed);
+}
+
+.view-all-link:hover {
+  color: var(--accent-color);
+}
+
+.view-all-link:hover i {
+  transform: translateX(3px);
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* Card Styles (shared between Wiki and News) */
+.feature-card {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: transform var(--transition-speed),
+    box-shadow var(--transition-speed);
+  cursor: pointer;
+  position: relative;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-image {
+  height: 180px;
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-speed);
+}
+
+.feature-card:hover .card-image img {
+  transform: scale(1.05);
+}
+
+.card-content {
+  padding: 15px;
+}
+
+.card-content h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: var(--dark-color);
+  font-size: 1.2rem;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #777;
+  font-size: 0.85rem;
+}
+
+.card-meta span {
+  display: flex;
+  align-items: center;
+}
+
+.card-meta i {
+  margin-right: 5px;
+}
+
+/* News Specific Styles */
+.news-section .section-header h2 {
+  color: var(--news-primary-color);
+}
+
+.news-section .view-all-link {
+  color: var(--news-primary-color);
+}
+
+.news-section .view-all-link:hover {
+  color: var(--news-primary-hover);
+}
+
+.news-card .news-category {
+  background-color: var(--news-primary-light);
+  color: var(--news-primary-color);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.featured-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--news-primary-color);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+/* No Content Message */
+.no-content-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: #777;
+}
+
+.no-content-message i {
+  font-size: 48px;
+  margin-bottom: 15px;
+  color: var(--light-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .image-carousel {
+    height: 300px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .view-all-link {
+    margin-top: 10px;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-carousel {
+    height: 250px;
+  }
+
+  .carousel-caption {
+    padding: 10px;
+  }
+
+  .carousel-caption p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}

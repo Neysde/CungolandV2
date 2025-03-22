@@ -646,6 +646,62 @@ router.post(
   }
 );
 
+// Main Page route
+router.get("/", async (req, res) => {
+  try {
+    // Get random photos for carousel (limit to 5)
+    const allPhotos = await Photo.find();
+    const randomPhotos = getRandomItems(allPhotos, 5);
+
+    // Get random wiki entries (limit to 3)
+    const db = mongoose.connection.db;
+    const wikisCollection = db.collection("wikis");
+    const allWikis = await wikisCollection.find().toArray();
+    const randomWikis = getRandomItems(allWikis, 3);
+
+    // Get random news articles (limit to 3)
+    const allNews = await News.find();
+    const randomNews = getRandomItems(allNews, 3);
+
+    res.render("index.ejs", {
+      title: "Çüngoland - Ana Sayfa",
+      photos: randomPhotos,
+      wikis: randomWikis,
+      newsArticles: randomNews,
+      user: req.session?.user || null,
+    });
+  } catch (error) {
+    console.error("Main Page Error:", error);
+    res.status(500).render("index.ejs", {
+      title: "Çüngoland - Ana Sayfa",
+      photos: [],
+      wikis: [],
+      newsArticles: [],
+      user: req.session?.user || null,
+    });
+  }
+});
+
+// Helper function to get random items from an array
+function getRandomItems(array, count) {
+  // If array is smaller than requested count, return the whole array
+  if (!array || array.length <= count) {
+    return array || [];
+  }
+
+  // Create a copy of the array to avoid modifying the original
+  const shuffled = [...array];
+
+  // Fisher-Yates shuffle algorithm
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  // Return the first 'count' items
+  return shuffled.slice(0, count);
+}
+
 // Route for the photos page with a more user-friendly URL
 router.get("/photos-from-cungoland", async (req, res) => {
   try {
