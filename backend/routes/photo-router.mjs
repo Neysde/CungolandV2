@@ -45,6 +45,7 @@ router.post("/api/photos", multerUploads, async (req, res) => {
 
     // Create new photo document
     const newPhoto = new Photo({
+      publicId: result.public_id,
       imageUrl: optimizeUrl,
       description: req.body.description,
     });
@@ -132,7 +133,7 @@ router.delete("/api/photos/:id", async (req, res) => {
     }
 
     // Extract public_id from Cloudinary URL to delete the image
-    const publicId = photo.imageUrl.split("/").pop().split(".")[0];
+    const publicId = photo.publicId;
 
     // Delete from Cloudinary
     await cloudinary.v2.uploader.destroy(publicId);

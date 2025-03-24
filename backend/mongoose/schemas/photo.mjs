@@ -7,6 +7,10 @@ import mongoose from "mongoose";
  */
 const photoSchema = new mongoose.Schema(
   {
+    publicId: {
+      type: String,
+      required: true,
+    },
     imageUrl: {
       type: String,
       required: true,

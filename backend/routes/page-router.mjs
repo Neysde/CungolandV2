@@ -90,20 +90,6 @@ router.get("/api/dashboard", isAuthenticated, async (req, res) => {
   }
 });
 
-router.get("/api/wiki", (req, res) => {
-  res.render("wiki.ejs", {
-    title: "Page Title",
-    imageUrl: "/path/to/image.jpg",
-    imageAlt: "Description of image",
-    founder: "Friedrich Müller",
-    foundingDate: "04.08.1948",
-    currentHead: "Karl Szafnauer",
-    additionalInfo: [{ label: "Additional Field", value: "Value" }],
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    lastModified: "Date string",
-  });
-});
-
 // Wiki page by slug
 router.get("/wiki/:slug", async (req, res) => {
   try {
@@ -254,6 +240,8 @@ router.post(
           allowed_formats: ["jpg", "png", "webp"],
         });
 
+        //wiki.infoImage.publicId = result.public_id;
+
         infoImageUrl = cloudinary.v2.url(result.public_id, {
           fetch_format: "auto",
           quality: "auto",
@@ -281,6 +269,7 @@ router.post(
           });
 
           contentImageUrls.push(imageUrl);
+          //wiki.contentImageIds.push({ publicId: result.public_id });
         }
       }
       // Also check for contentImages field (without array notation)
