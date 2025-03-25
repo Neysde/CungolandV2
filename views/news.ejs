@@ -135,11 +135,43 @@
         margin: 2rem 0;
       }
 
+      /* Add support for content-image class */
+      .content-image {
+        width: 100%;
+        max-height: 400px;
+        overflow: hidden;
+        border-radius: 8px;
+        margin: 2rem 0;
+      }
+
+      .content-image img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+
+      /* Improve caption styling */
       .image-caption {
         text-align: center;
         color: var(--neutral-700);
         font-size: 0.875rem;
         margin-top: 0.5rem;
+        font-style: italic;
+        padding: 0.5rem;
+        background-color: var(--neutral-100);
+        border-radius: 0 0 8px 8px;
+      }
+
+      /* Fix for article-image and content-image inside article-content */
+      .article-content .article-image,
+      .article-content .content-image {
+        margin: 2rem 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .article-content .article-image img,
+      .article-content .content-image img {
+        border-radius: 8px 8px 0 0;
       }
 
       .back-link {

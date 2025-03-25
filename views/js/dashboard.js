@@ -661,12 +661,33 @@ document.addEventListener("DOMContentLoaded", function () {
         editInfoTableFields.innerHTML = "";
         if (wiki.infoFields && wiki.infoFields.length > 0) {
           wiki.infoFields.forEach((field) => {
-            const fieldHTML = infoFieldTemplate
-              .replace(/::LABEL::/g, field.label)
-              .replace(/::VALUE::/g, field.value);
-            editInfoTableFields.insertAdjacentHTML("beforeend", fieldHTML);
+            // Create a temporary container to hold the template
+            const tempContainer = document.createElement("div");
+            tempContainer.innerHTML = infoFieldTemplate;
+
+            // Get the template element
+            const newField = tempContainer.firstElementChild;
+
+            // Set the values
+            const inputs = newField.querySelectorAll("input");
+            if (inputs.length >= 2) {
+              inputs[0].value = field.label || ""; // Set label value
+              inputs[1].value = field.value || ""; // Set value value
+            }
+
+            // Add remove button functionality
+            const removeButton = newField.querySelector(".remove-field");
+            if (removeButton) {
+              removeButton.addEventListener("click", removeInfoField);
+            }
+
+            // Add the populated field to the form
+            editInfoTableFields.appendChild(newField);
           });
         }
+
+        // Clear existing content sections before parsing and populating
+        editContentSections.innerHTML = "";
 
         // Parse content HTML to recreate content sections
         parseAndPopulateContent(wiki.content, editContentSections);
@@ -1121,6 +1142,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add featured flag as boolean
     formData.set("featured", newsFeatured.checked);
 
+    // Add section order and types for maintaining content order
+    const contentSections =
+      newsContentSections.querySelectorAll(".content-section");
+    let sectionIndex = 0;
+
+    contentSections.forEach((section) => {
+      // Track the type and order of each section
+      if (section.classList.contains("paragraph-section")) {
+        formData.append("sectionTypes", "paragraph");
+        formData.append("sectionOrder", sectionIndex);
+      } else if (section.classList.contains("image-section")) {
+        formData.append("sectionTypes", "image");
+        formData.append("sectionOrder", sectionIndex);
+      }
+      sectionIndex++;
+    });
+
     // Show loading state
     const submitBtn = newsForm.querySelector(".submit-btn");
     const originalText = submitBtn.textContent;
@@ -1132,25 +1170,19 @@ document.addEventListener("DOMContentLoaded", function () {
       method: "POST",
       body: formData,
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then((data) => {
         if (data.success) {
           // Show success message
           alert("News article created successfully!");
 
-          // Reset form
-          newsForm.reset();
-          newsInfoImagePreview.innerHTML =
-            '<i class="fas fa-image"></i><span>No image selected</span>';
-          newsInfoTableFields.innerHTML = "";
-          newsContentSections.innerHTML = "";
-          addParagraphToContainer(newsContentSections);
-
-          // Redirect to the new news article
-          window.open(data.url, "_blank");
-
-          // Refresh the page to update the news list
-          window.location.reload();
+          // Redirect to the news article page
+          window.location.href = data.url;
         } else {
           // Show error message
           alert(`Error: ${data.message}`);
@@ -1220,57 +1252,121 @@ document.addEventListener("DOMContentLoaded", function () {
         // Clear and populate info fields
         editNewsInfoTableFields.innerHTML = "";
         if (news.infoFields && news.infoFields.length > 0) {
-          news.infoFields.forEach((field, index) => {
-            const fieldHTML = `
-              <div class="info-field">
-                <div class="field-inputs">
-                  <input type="text" name="infoTable[fields][${index}][label]" placeholder="Label" value="${
-              field.label || ""
-            }" required>
-                  <input type="text" name="infoTable[fields][${index}][value]" placeholder="Value" value="${
-              field.value || ""
-            }" required>
-                </div>
-                <button type="button" class="remove-field-btn" onclick="removeInfoField(this)">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            `;
-            editNewsInfoTableFields.insertAdjacentHTML("beforeend", fieldHTML);
+          news.infoFields.forEach((field) => {
+            // Create a temporary container to hold the template
+            const tempContainer = document.createElement("div");
+            tempContainer.innerHTML = infoFieldTemplate;
+
+            // Get the template element
+            const newField = tempContainer.firstElementChild;
+
+            // Set the values
+            const inputs = newField.querySelectorAll("input");
+            if (inputs.length >= 2) {
+              inputs[0].value = field.label || ""; // Set label value
+              inputs[1].value = field.value || ""; // Set value value
+            }
+
+            // Add remove button functionality
+            const removeButton = newField.querySelector(".remove-field");
+            if (removeButton) {
+              removeButton.addEventListener("click", removeInfoField);
+            }
+
+            // Add the populated field to the form
+            editNewsInfoTableFields.appendChild(newField);
           });
         }
 
         // Clear content sections
         editNewsContentSections.innerHTML = "";
 
-        // Parse HTML content to extract subtitles and paragraphs
+        // Parse HTML content to extract subtitles, paragraphs and images
         if (news.content) {
           // Create a temporary container to parse the HTML
           const tempContainer = document.createElement("div");
           tempContainer.innerHTML = news.content;
 
-          // Find all h2 (subtitles) and p (paragraphs) elements
-          const h2Elements = tempContainer.querySelectorAll("h2");
-          const pElements = tempContainer.querySelectorAll("p");
+          // Process the content in a more structured way, similar to wiki parsing
+          let currentSubtitle = "";
+          let currentParagraph = "";
 
-          // If we have h2 elements, assume they are subtitles followed by paragraphs
-          if (h2Elements.length > 0) {
-            h2Elements.forEach((h2, index) => {
-              // Get the corresponding paragraph if available
-              const paragraph = pElements[index]
-                ? pElements[index].textContent
-                : "";
+          // Process each child node
+          Array.from(tempContainer.childNodes).forEach((node) => {
+            // Handle headings (subtitles)
+            if (node.nodeName === "H2") {
+              // If we have a paragraph, add it first
+              if (currentParagraph) {
+                addParagraphWithContent(
+                  editNewsContentSections,
+                  currentSubtitle,
+                  currentParagraph
+                );
+                currentSubtitle = "";
+                currentParagraph = "";
+              }
 
-              // Add a paragraph section with subtitle and content
-              addParagraphWithContent(
-                editNewsContentSections,
-                h2.textContent,
-                paragraph
-              );
-            });
-          } else {
-            // If no h2 elements, just add the content as a single paragraph
-            addParagraphWithContent(editNewsContentSections, "", news.content);
+              // Store the subtitle
+              currentSubtitle = node.textContent;
+            }
+            // Handle paragraphs
+            else if (
+              node.nodeName === "P" &&
+              !node.parentNode.classList?.contains("article-image") &&
+              !node.parentNode.classList?.contains("content-image")
+            ) {
+              // If we already have a paragraph, add it first
+              if (currentParagraph) {
+                addParagraphWithContent(
+                  editNewsContentSections,
+                  currentSubtitle,
+                  currentParagraph
+                );
+                currentSubtitle = "";
+                currentParagraph = "";
+              }
+
+              // Store the paragraph
+              currentParagraph = node.textContent;
+            }
+            // Handle images (both article-image and content-image classes)
+            else if (
+              node.nodeName === "DIV" &&
+              (node.classList.contains("article-image") ||
+                node.classList.contains("content-image"))
+            ) {
+              // If we have a paragraph, add it first
+              if (currentParagraph) {
+                addParagraphWithContent(
+                  editNewsContentSections,
+                  currentSubtitle,
+                  currentParagraph
+                );
+                currentSubtitle = "";
+                currentParagraph = "";
+              }
+
+              // Add image section
+              const img = node.querySelector("img");
+              const caption = node.querySelector(".image-caption");
+
+              if (img) {
+                addImageWithContent(
+                  editNewsContentSections,
+                  img.src,
+                  caption ? caption.textContent : ""
+                );
+              }
+            }
+          });
+
+          // Add any remaining paragraph
+          if (currentParagraph) {
+            addParagraphWithContent(
+              editNewsContentSections,
+              currentSubtitle,
+              currentParagraph
+            );
           }
         } else {
           // Add at least one paragraph section if no content exists
@@ -1344,44 +1440,22 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add featured flag as boolean
     formData.set("featured", editNewsFeatured.checked);
 
-    // Process content sections to create HTML content
+    // Add section order and types for maintaining content order
     const contentSections =
       editNewsContentSections.querySelectorAll(".content-section");
-    let htmlContent = "";
+    let sectionIndex = 0;
 
     contentSections.forEach((section) => {
+      // Track the type and order of each section
       if (section.classList.contains("paragraph-section")) {
-        const subtitle = section.querySelector(
-          'input[name^="subtitles"]'
-        ).value;
-        const paragraph = section.querySelector(
-          'textarea[name^="paragraphs"]'
-        ).value;
-
-        if (subtitle) {
-          htmlContent += `<h2>${subtitle}</h2>`;
-        }
-
-        if (paragraph) {
-          htmlContent += `<p>${paragraph}</p>`;
-        }
+        formData.append("sectionTypes", "paragraph");
+        formData.append("sectionOrder", sectionIndex);
       } else if (section.classList.contains("image-section")) {
-        const caption = section.querySelector(
-          'input[name^="imageCaptions"]'
-        ).value;
-        const imageUrl = section.querySelector('input[type="hidden"]')?.value;
-
-        if (imageUrl) {
-          htmlContent += `<div class="content-image">
-            <img src="${imageUrl}" alt="${caption || "Image"}">
-            ${caption ? `<p class="image-caption">${caption}</p>` : ""}
-          </div>`;
-        }
+        formData.append("sectionTypes", "image");
+        formData.append("sectionOrder", sectionIndex);
       }
+      sectionIndex++;
     });
-
-    // Set the content
-    formData.set("content", htmlContent);
 
     // Show loading state
     const submitBtn = editNewsForm.querySelector(".submit-btn");

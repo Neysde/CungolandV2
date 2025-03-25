@@ -23,6 +23,7 @@ const newsSchema = new mongoose.Schema({
   infoImage: {
     url: String,
     alt: String,
+    publicId: String,
   },
   infoFields: [
     {
@@ -36,6 +37,11 @@ const newsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  contentImageIds: [
+    {
+      publicId: String,
+    },
+  ],
 
   // News-specific fields
   publishDate: {

@@ -892,6 +892,8 @@ router.post(
         subtitles,
         paragraphs,
         imageCaptions,
+        sectionTypes, // Add new field to track section types
+        sectionOrder, // Add new field to track section order
         category,
         featured,
         publishDate,
@@ -922,12 +924,17 @@ router.post(
       // Process info table image
       let infoImageUrl = newsArticle.infoImage?.url || "";
       let infoImageAlt = title;
+      let infoImagePublicId = newsArticle.infoImage?.publicId || "";
+
       if (req.files && req.files.infoImage && req.files.infoImage.length > 0) {
         const fileContent = await dataUri(req.files.infoImage[0]);
         const result = await uploader.upload(fileContent, {
           resource_type: "auto",
           allowed_formats: ["jpg", "png", "webp"],
         });
+
+        // Store the new publicId
+        infoImagePublicId = result.public_id;
 
         infoImageUrl = cloudinary.v2.url(result.public_id, {
           fetch_format: "auto",
@@ -937,6 +944,8 @@ router.post(
 
       // Process content images
       const contentImageUrls = [];
+      const contentImagePublicIds = [];
+
       if (
         req.files &&
         req.files["contentImages[]"] &&
@@ -948,6 +957,9 @@ router.post(
             resource_type: "auto",
             allowed_formats: ["jpg", "png", "webp"],
           });
+
+          // Store the publicId
+          contentImagePublicIds.push({ publicId: result.public_id });
 
           const imageUrl = cloudinary.v2.url(result.public_id, {
             fetch_format: "auto",
@@ -967,6 +979,8 @@ router.post(
             resource_type: "auto",
             allowed_formats: ["jpg", "png", "webp"],
           });
+
+          contentImagePublicIds.push({ publicId: result.public_id });
 
           const imageUrl = cloudinary.v2.url(result.public_id, {
             fetch_format: "auto",
@@ -998,10 +1012,10 @@ router.post(
         }
       }
 
-      // Generate HTML content from paragraphs, subtitles, and images
+      // Generate HTML content preserving the order of paragraphs and images
       let htmlContent = "";
 
-      // If subtitles is a string, convert to array
+      // Convert input arrays to ensure they're arrays even if single items
       const subtitlesArray = Array.isArray(subtitles)
         ? subtitles
         : subtitles
@@ -1018,26 +1032,79 @@ router.post(
         ? [imageCaptions]
         : [];
 
-      // Add paragraphs and subtitles
-      for (let i = 0; i < paragraphsArray.length; i++) {
-        if (subtitlesArray[i]) {
-          htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
+      // Track paragraph and image counters
+      let paragraphCounter = 0;
+      let imageCounter = 0;
+
+      // If sectionOrder is provided (from the form), use it to determine content order
+      if (sectionOrder && sectionTypes) {
+        const orderArray = Array.isArray(sectionOrder)
+          ? sectionOrder
+          : [sectionOrder];
+        const typesArray = Array.isArray(sectionTypes)
+          ? sectionTypes
+          : [sectionTypes];
+
+        // Process sections in the order provided
+        for (let i = 0; i < orderArray.length; i++) {
+          const index = parseInt(orderArray[i], 10);
+          const type = typesArray[i];
+
+          if (type === "paragraph") {
+            // Add paragraph with subtitle if available
+            if (paragraphCounter < paragraphsArray.length) {
+              const subtitle = subtitlesArray[paragraphCounter] || "";
+              const paragraph = paragraphsArray[paragraphCounter] || "";
+
+              if (subtitle) {
+                htmlContent += `<h2>${subtitle}</h2>`;
+              }
+
+              if (paragraph) {
+                htmlContent += `<p>${paragraph}</p>`;
+              }
+
+              paragraphCounter++;
+            }
+          } else if (type === "image") {
+            // Add image with caption if available
+            if (imageCounter < contentImageUrls.length) {
+              const caption = imageCaptionsArray[imageCounter] || "";
+
+              htmlContent += `
+              <div class="article-image">
+                <img src="${contentImageUrls[imageCounter]}" alt="${caption}">
+                ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+              </div>
+              `;
+
+              imageCounter++;
+            }
+          }
+        }
+      } else {
+        // Fallback to the old method if no ordering data is provided
+        // Add paragraphs and subtitles
+        for (let i = 0; i < paragraphsArray.length; i++) {
+          if (subtitlesArray[i]) {
+            htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
+          }
+
+          if (paragraphsArray[i]) {
+            htmlContent += `<p>${paragraphsArray[i]}</p>`;
+          }
         }
 
-        if (paragraphsArray[i]) {
-          htmlContent += `<p>${paragraphsArray[i]}</p>`;
+        // Add images with captions
+        for (let i = 0; i < contentImageUrls.length; i++) {
+          const caption = imageCaptionsArray[i] || "";
+          htmlContent += `
+          <div class="article-image">
+            <img src="${contentImageUrls[i]}" alt="${caption}">
+            ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+          </div>
+          `;
         }
-      }
-
-      // Add images with captions
-      for (let i = 0; i < contentImageUrls.length; i++) {
-        const caption = imageCaptionsArray[i] || "";
-        htmlContent += `
-        <div class="article-image">
-          <img src="${contentImageUrls[i]}" alt="${caption}">
-          ${caption ? `<p class="image-caption">${caption}</p>` : ""}
-        </div>
-      `;
       }
 
       // Update news article
@@ -1046,6 +1113,7 @@ router.post(
       newsArticle.infoImage = {
         url: infoImageUrl,
         alt: infoImageAlt,
+        publicId: infoImagePublicId,
       };
       newsArticle.infoFields = infoFields;
       newsArticle.content = htmlContent;
@@ -1055,6 +1123,11 @@ router.post(
         ? new Date(publishDate)
         : new Date();
       newsArticle.lastModified = new Date();
+
+      // Only add new contentImageIds if we have uploaded new images
+      if (contentImagePublicIds.length > 0) {
+        newsArticle.contentImageIds = contentImagePublicIds;
+      }
 
       // Save updated news article
       await newsArticle.save();
@@ -1092,6 +1165,8 @@ router.post(
         subtitles,
         paragraphs,
         imageCaptions,
+        sectionTypes, // Add new field to track section types
+        sectionOrder, // Add new field to track section order
         category,
         featured,
         publishDate,
@@ -1121,12 +1196,16 @@ router.post(
       // Process info table image
       let infoImageUrl = "";
       let infoImageAlt = title;
+      let infoImagePublicId = "";
+
       if (req.files && req.files.infoImage && req.files.infoImage.length > 0) {
         const fileContent = await dataUri(req.files.infoImage[0]);
         const result = await uploader.upload(fileContent, {
           resource_type: "auto",
           allowed_formats: ["jpg", "png", "webp"],
         });
+
+        infoImagePublicId = result.public_id;
 
         infoImageUrl = cloudinary.v2.url(result.public_id, {
           fetch_format: "auto",
@@ -1136,6 +1215,8 @@ router.post(
 
       // Process content images
       const contentImageUrls = [];
+      const contentImagePublicIds = [];
+
       if (
         req.files &&
         req.files["contentImages[]"] &&
@@ -1147,6 +1228,8 @@ router.post(
             resource_type: "auto",
             allowed_formats: ["jpg", "png", "webp"],
           });
+
+          contentImagePublicIds.push({ publicId: result.public_id });
 
           const imageUrl = cloudinary.v2.url(result.public_id, {
             fetch_format: "auto",
@@ -1166,6 +1249,8 @@ router.post(
             resource_type: "auto",
             allowed_formats: ["jpg", "png", "webp"],
           });
+
+          contentImagePublicIds.push({ publicId: result.public_id });
 
           const imageUrl = cloudinary.v2.url(result.public_id, {
             fetch_format: "auto",
@@ -1197,10 +1282,10 @@ router.post(
         }
       }
 
-      // Generate HTML content from paragraphs, subtitles, and images
+      // Generate HTML content preserving the order of paragraphs and images
       let htmlContent = "";
 
-      // If subtitles is a string, convert to array
+      // Convert input arrays to ensure they're arrays even if single items
       const subtitlesArray = Array.isArray(subtitles)
         ? subtitles
         : subtitles
@@ -1217,26 +1302,79 @@ router.post(
         ? [imageCaptions]
         : [];
 
-      // Add paragraphs and subtitles
-      for (let i = 0; i < paragraphsArray.length; i++) {
-        if (subtitlesArray[i]) {
-          htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
+      // Track paragraph and image counters
+      let paragraphCounter = 0;
+      let imageCounter = 0;
+
+      // If sectionOrder is provided (from the form), use it to determine content order
+      if (sectionOrder && sectionTypes) {
+        const orderArray = Array.isArray(sectionOrder)
+          ? sectionOrder
+          : [sectionOrder];
+        const typesArray = Array.isArray(sectionTypes)
+          ? sectionTypes
+          : [sectionTypes];
+
+        // Process sections in the order provided
+        for (let i = 0; i < orderArray.length; i++) {
+          const index = parseInt(orderArray[i], 10);
+          const type = typesArray[i];
+
+          if (type === "paragraph") {
+            // Add paragraph with subtitle if available
+            if (paragraphCounter < paragraphsArray.length) {
+              const subtitle = subtitlesArray[paragraphCounter] || "";
+              const paragraph = paragraphsArray[paragraphCounter] || "";
+
+              if (subtitle) {
+                htmlContent += `<h2>${subtitle}</h2>`;
+              }
+
+              if (paragraph) {
+                htmlContent += `<p>${paragraph}</p>`;
+              }
+
+              paragraphCounter++;
+            }
+          } else if (type === "image") {
+            // Add image with caption if available
+            if (imageCounter < contentImageUrls.length) {
+              const caption = imageCaptionsArray[imageCounter] || "";
+
+              htmlContent += `
+              <div class="article-image">
+                <img src="${contentImageUrls[imageCounter]}" alt="${caption}">
+                ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+              </div>
+              `;
+
+              imageCounter++;
+            }
+          }
+        }
+      } else {
+        // Fallback to the old method if no ordering data is provided
+        // Add paragraphs and subtitles
+        for (let i = 0; i < paragraphsArray.length; i++) {
+          if (subtitlesArray[i]) {
+            htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
+          }
+
+          if (paragraphsArray[i]) {
+            htmlContent += `<p>${paragraphsArray[i]}</p>`;
+          }
         }
 
-        if (paragraphsArray[i]) {
-          htmlContent += `<p>${paragraphsArray[i]}</p>`;
+        // Add images with captions
+        for (let i = 0; i < contentImageUrls.length; i++) {
+          const caption = imageCaptionsArray[i] || "";
+          htmlContent += `
+          <div class="article-image">
+            <img src="${contentImageUrls[i]}" alt="${caption}">
+            ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+          </div>
+          `;
         }
-      }
-
-      // Add images with captions
-      for (let i = 0; i < contentImageUrls.length; i++) {
-        const caption = imageCaptionsArray[i] || "";
-        htmlContent += `
-        <div class="article-image">
-          <img src="${contentImageUrls[i]}" alt="${caption}">
-          ${caption ? `<p class="image-caption">${caption}</p>` : ""}
-        </div>
-      `;
       }
 
       // Create new news article
@@ -1246,9 +1384,11 @@ router.post(
         infoImage: {
           url: infoImageUrl,
           alt: infoImageAlt,
+          publicId: infoImagePublicId,
         },
         infoFields,
         content: htmlContent,
+        contentImageIds: contentImagePublicIds,
         publishDate: publishDate ? new Date(publishDate) : new Date(),
         category: category || "General",
         featured: featured === "true" || featured === true,
@@ -1289,15 +1429,33 @@ router.delete("/api/news/:id", isAuthenticated, async (req, res) => {
       });
     }
 
-    // Find and delete news article
-    const result = await News.findByIdAndDelete(req.params.id);
+    // Find news article before deletion to get image IDs
+    const newsArticle = await News.findById(req.params.id);
 
-    if (!result) {
+    if (!newsArticle) {
       return res.status(404).json({
         success: false,
         message: "News article not found",
       });
     }
+
+    // Delete images from Cloudinary
+    // Delete info image if it exists
+    if (newsArticle.infoImage && newsArticle.infoImage.publicId) {
+      await cloudinary.v2.uploader.destroy(newsArticle.infoImage.publicId);
+    }
+
+    // Delete content images if they exist
+    if (newsArticle.contentImageIds && newsArticle.contentImageIds.length > 0) {
+      for (const imageId of newsArticle.contentImageIds) {
+        if (imageId.publicId) {
+          await cloudinary.v2.uploader.destroy(imageId.publicId);
+        }
+      }
+    }
+
+    // Now delete the news article
+    const result = await News.findByIdAndDelete(req.params.id);
 
     // Return success
     res.status(200).json({
