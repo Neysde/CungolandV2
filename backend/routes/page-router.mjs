@@ -232,6 +232,7 @@ router.post(
       // Process info table image
       let infoImageUrl = wiki.infoImage?.url || "";
       let infoImageAlt = title;
+      let infoImagePublicId = wiki.infoImage?.publicId || "";
 
       if (req.files && req.files.infoImage && req.files.infoImage.length > 0) {
         const fileContent = await dataUri(req.files.infoImage[0]);
@@ -240,7 +241,7 @@ router.post(
           allowed_formats: ["jpg", "png", "webp"],
         });
 
-        //wiki.infoImage.publicId = result.public_id;
+        infoImagePublicId = result.public_id;
 
         infoImageUrl = cloudinary.v2.url(result.public_id, {
           fetch_format: "auto",
@@ -250,6 +251,7 @@ router.post(
 
       // Process content images - check both field name formats
       const contentImageUrls = [];
+      const contentImagePublicIds = [];
       // Check for contentImages[] field
       if (
         req.files &&
@@ -263,13 +265,14 @@ router.post(
             allowed_formats: ["jpg", "png", "webp"],
           });
 
+          contentImagePublicIds.push({ publicId: result.public_id });
+
           const imageUrl = cloudinary.v2.url(result.public_id, {
             fetch_format: "auto",
             quality: "auto",
           });
 
           contentImageUrls.push(imageUrl);
-          //wiki.contentImageIds.push({ publicId: result.public_id });
         }
       }
       // Also check for contentImages field (without array notation)
@@ -367,9 +370,11 @@ router.post(
             infoImage: {
               url: infoImageUrl,
               alt: infoImageAlt,
+              publicId: infoImagePublicId,
             },
             infoFields,
             content: htmlContent,
+            contentImageIds: contentImagePublicIds,
             lastModified: new Date(),
           },
         }
@@ -406,9 +411,19 @@ router.post("/api/wiki/:id/delete", isAuthenticated, async (req, res) => {
     // Get direct access to the 'wikis' collection
     const db = mongoose.connection.db;
     const wikisCollection = db.collection("wikis");
+    const objectId = new mongoose.Types.ObjectId(req.params.id);
+    const wiki = await wikisCollection.findOne({ _id: objectId });
+
+    const publicId = wiki.infoImage.publicId;
+    const contentImagePublicIds = wiki.contentImageIds.map((id) => id.publicId);
+    contentImagePublicIds.forEach((id) => {
+      cloudinary.v2.uploader.destroy(id);
+    });
+
+    cloudinary.v2.uploader.destroy(publicId);
 
     // Delete wiki by ID
-    const objectId = new mongoose.Types.ObjectId(req.params.id);
+
     const deleteResult = await wikisCollection.deleteOne({ _id: objectId });
 
     if (deleteResult.deletedCount === 0) {
@@ -478,12 +493,15 @@ router.post(
       // Process info table image
       let infoImageUrl = "";
       let infoImageAlt = title;
+      let infoImagePublicId = "";
       if (req.files && req.files.infoImage && req.files.infoImage.length > 0) {
         const fileContent = await dataUri(req.files.infoImage[0]);
         const result = await uploader.upload(fileContent, {
           resource_type: "auto",
           allowed_formats: ["jpg", "png", "webp"],
         });
+
+        infoImagePublicId = result.public_id;
 
         infoImageUrl = cloudinary.v2.url(result.public_id, {
           fetch_format: "auto",
@@ -493,6 +511,7 @@ router.post(
 
       // Process content images - check both field name formats
       const contentImageUrls = [];
+      const contentImagePublicIds = [];
       // Check for contentImages[] field
       if (
         req.files &&
@@ -505,6 +524,8 @@ router.post(
             resource_type: "auto",
             allowed_formats: ["jpg", "png", "webp"],
           });
+
+          contentImagePublicIds.push({ publicId: result.public_id });
 
           const imageUrl = cloudinary.v2.url(result.public_id, {
             fetch_format: "auto",
@@ -606,9 +627,11 @@ router.post(
         infoImage: {
           url: infoImageUrl,
           alt: infoImageAlt,
+          publicId: infoImagePublicId,
         },
         infoFields,
         content: htmlContent,
+        contentImageIds: contentImagePublicIds,
         createdBy: req.session?.userId, //req.user?._id, // If user authentication is implemented
         author: req.session?.username,
         createdAt: new Date(),

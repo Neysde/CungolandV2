@@ -23,7 +23,7 @@ const wikiSchema = new mongoose.Schema({
   infoImage: {
     url: String,
     alt: String,
-    //publicId: String,
+    publicId: String,
   },
   infoFields: [
     {
@@ -37,11 +37,11 @@ const wikiSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  /*  contentImageIds: [
+  contentImageIds: [
     {
       publicId: String,
     },
-  ] ,*/
+  ],
 
   // Metadata
   createdBy: {
