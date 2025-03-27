@@ -16,7 +16,7 @@ router.use(
     secret: process.env.SESSION_SECRET, // Using environment variable for session secret
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }, // Set to true if using HTTPS
+    cookie: { secure: true }, // Set to true if using HTTPS
   })
 );
 
