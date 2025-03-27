@@ -117,24 +117,28 @@ document.addEventListener("DOMContentLoaded", function () {
    * Generate URL slug from title
    * Converts title to lowercase, replaces spaces with hyphens, and removes special characters
    */
-  wikiTitle.addEventListener("input", function () {
-    const title = this.value;
-    const slug = generateSlug(title);
+  if (wikiTitle) {
+    wikiTitle.addEventListener("input", function () {
+      const title = this.value;
+      const slug = generateSlug(title);
 
-    // Set hidden input value for URL slug
-    document.getElementById("wikiUrlHidden").value = slug;
-  });
+      // Set hidden input value for URL slug
+      document.getElementById("wikiUrlHidden").value = slug;
+    });
+  }
 
   /**
    * Generate URL slug from title in edit form
    */
-  editWikiTitle.addEventListener("input", function () {
-    const title = this.value;
-    const slug = generateSlug(title);
+  if (editWikiTitle && editWikiUrlSlug) {
+    editWikiTitle.addEventListener("input", function () {
+      const title = this.value;
+      const slug = generateSlug(title);
 
-    // Set hidden input value for URL slug
-    editWikiUrlSlug.value = slug;
-  });
+      // Set hidden input value for URL slug
+      editWikiUrlSlug.value = slug;
+    });
+  }
 
   /**
    * Generate URL slug from title for news
@@ -178,16 +182,20 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Handle info image upload and preview
    */
-  infoImage.addEventListener("change", function () {
-    handleImageUpload(this, infoImagePreview);
-  });
+  if (infoImage && infoImagePreview) {
+    infoImage.addEventListener("change", function () {
+      handleImageUpload(this, infoImagePreview);
+    });
+  }
 
   /**
    * Handle edit info image upload and preview
    */
-  editInfoImage.addEventListener("change", function () {
-    handleImageUpload(this, editInfoImagePreview);
-  });
+  if (editInfoImage && editInfoImagePreview) {
+    editInfoImage.addEventListener("change", function () {
+      handleImageUpload(this, editInfoImagePreview);
+    });
+  }
 
   /**
    * Handle info image upload for news
@@ -235,21 +243,25 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
-   * Add new info field to the info table
+   * Handle adding info fields
    */
-  addInfoField.addEventListener("click", function () {
-    addInfoFieldToContainer(infoTableFields);
-  });
+  if (addInfoField) {
+    addInfoField.addEventListener("click", function () {
+      addInfoFieldToContainer(infoTableFields);
+    });
+  }
 
   /**
-   * Add new info field to the edit info table
+   * Handle adding edit info fields
    */
-  editAddInfoField.addEventListener("click", function () {
-    addInfoFieldToContainer(editInfoTableFields);
-  });
+  if (editAddInfoField) {
+    editAddInfoField.addEventListener("click", function () {
+      addInfoFieldToContainer(editInfoTableFields);
+    });
+  }
 
   /**
-   * Add info field to news form
+   * Handle adding news info fields
    */
   if (addNewsInfoField) {
     addNewsInfoField.addEventListener("click", function () {
@@ -258,7 +270,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
-   * Add info field to edit news form
+   * Handle adding edit news info fields
    */
   if (editAddNewsInfoField) {
     editAddNewsInfoField.addEventListener("click", function () {
@@ -303,32 +315,36 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /**
-   * Add new paragraph section to the content
+   * Handle adding paragraphs
    */
-  addParagraph.addEventListener("click", function () {
-    addParagraphToContainer(contentSections);
-  });
+  if (addParagraph && contentSections) {
+    addParagraph.addEventListener("click", function () {
+      addParagraphToContainer(contentSections);
+    });
+  }
 
   /**
-   * Add new paragraph section to the edit content
+   * Handle adding paragraphs in edit mode
    */
-  editAddParagraph.addEventListener("click", function () {
-    addParagraphToContainer(editContentSections);
-  });
+  if (editAddParagraph && editContentSections) {
+    editAddParagraph.addEventListener("click", function () {
+      addParagraphToContainer(editContentSections);
+    });
+  }
 
   /**
-   * Add paragraph to news form
+   * Handle adding news paragraphs
    */
-  if (addNewsParagraph) {
+  if (addNewsParagraph && newsContentSections) {
     addNewsParagraph.addEventListener("click", function () {
       addParagraphToContainer(newsContentSections);
     });
   }
 
   /**
-   * Add paragraph to edit news form
+   * Handle adding news paragraphs in edit mode
    */
-  if (editAddNewsParagraph) {
+  if (editAddNewsParagraph && editNewsContentSections) {
     editAddNewsParagraph.addEventListener("click", function () {
       addParagraphToContainer(editNewsContentSections);
     });
@@ -360,32 +376,36 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
-   * Add new image section to the content
+   * Handle adding images
    */
-  addImage.addEventListener("click", function () {
-    addImageToContainer(contentSections);
-  });
+  if (addImage && contentSections) {
+    addImage.addEventListener("click", function () {
+      addImageToContainer(contentSections);
+    });
+  }
 
   /**
-   * Add new image section to the edit content
+   * Handle adding images in edit mode
    */
-  editAddImage.addEventListener("click", function () {
-    addImageToContainer(editContentSections);
-  });
+  if (editAddImage && editContentSections) {
+    editAddImage.addEventListener("click", function () {
+      addImageToContainer(editContentSections);
+    });
+  }
 
   /**
-   * Add image to news form
+   * Handle adding news images
    */
-  if (addNewsImage) {
+  if (addNewsImage && newsContentSections) {
     addNewsImage.addEventListener("click", function () {
       addImageToContainer(newsContentSections);
     });
   }
 
   /**
-   * Add image to edit news form
+   * Handle adding news images in edit mode
    */
-  if (editAddNewsImage) {
+  if (editAddNewsImage && editNewsContentSections) {
     editAddNewsImage.addEventListener("click", function () {
       addImageToContainer(editNewsContentSections);
     });
@@ -488,112 +508,134 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Preview wiki
    */
-  previewWiki.addEventListener("click", function (e) {
-    e.preventDefault();
+  if (previewWiki) {
+    previewWiki.addEventListener("click", function (e) {
+      e.preventDefault();
 
-    // Validate form
-    if (!validateForm(wikiForm)) {
-      alert("Please fill in all required fields before previewing.");
-      return;
-    }
+      // Validate form
+      if (!validateForm(wikiForm)) {
+        alert("Please fill in all required fields before previewing.");
+        return;
+      }
 
-    // Open preview in new window/tab
-    const formData = new FormData(wikiForm);
+      // Open preview in new window/tab
+      const formData = new FormData(wikiForm);
 
-    // TODO: Implement preview functionality
-    // This would typically involve sending the form data to the server
-    // and getting back a preview HTML that can be displayed in a new window
-    alert("Preview functionality will be implemented on the server side.");
-  });
+      // TODO: Implement preview functionality
+      // This would typically involve sending the form data to the server
+      // and getting back a preview HTML that can be displayed in a new window
+      alert("Preview functionality will be implemented on the server side.");
+    });
+  }
 
   /**
    * Form submission for creating a new wiki
    */
-  wikiForm.addEventListener("submit", function (e) {
-    e.preventDefault();
+  if (wikiForm) {
+    wikiForm.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    // Validate form
-    if (!validateForm(this)) {
-      alert("Please fill in all required fields before submitting.");
-      return;
-    }
+      // Validate form
+      if (!validateForm(this)) {
+        alert("Please fill in all required fields before submitting.");
+        return;
+      }
 
-    // Create FormData object
-    const formData = new FormData(this);
+      // Create FormData object
+      const formData = new FormData(this);
 
-    // Show loading state
-    const submitBtn = this.querySelector(".submit-btn");
-    const originalBtnText = submitBtn.textContent;
-    submitBtn.textContent = "Creating...";
-    submitBtn.disabled = true;
+      // Add section order and types for maintaining content order
+      const sections = document
+        .getElementById("contentSections")
+        .querySelectorAll(".content-section");
+      let sectionIndex = 0;
 
-    // Send form data to server
-    fetch("/api/wiki/create", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => {
-        // Reset button state
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = false;
+      sections.forEach((section) => {
+        // Track the type and order of each section
+        if (section.classList.contains("paragraph-section")) {
+          formData.append("sectionTypes", "paragraph");
+          formData.append("sectionOrder", sectionIndex);
+        } else if (section.classList.contains("image-section")) {
+          formData.append("sectionTypes", "image");
+          formData.append("sectionOrder", sectionIndex);
+        }
+        sectionIndex++;
+      });
 
-        // Check if response is ok
-        if (!response.ok) {
-          return response.text().then((text) => {
-            // Try to parse as JSON, if it fails, use the text as error message
-            try {
-              const json = JSON.parse(text);
-              throw new Error(json.message || "Error creating wiki");
-            } catch (e) {
-              if (e instanceof SyntaxError) {
-                // JSON parse error, use the raw text
-                console.error("Server response:", text);
-                throw new Error("Server error. Please try again later.");
+      // Show loading state
+      const submitBtn = this.querySelector(".submit-btn");
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.textContent = "Creating...";
+      submitBtn.disabled = true;
+
+      // Send form data to server
+      fetch("/api/wiki/create", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          // Reset button state
+          submitBtn.textContent = originalBtnText;
+          submitBtn.disabled = false;
+
+          // Check if response is ok
+          if (!response.ok) {
+            return response.text().then((text) => {
+              // Try to parse as JSON, if it fails, use the text as error message
+              try {
+                const json = JSON.parse(text);
+                throw new Error(json.message || "Error creating wiki");
+              } catch (e) {
+                if (e instanceof SyntaxError) {
+                  // JSON parse error, use the raw text
+                  console.error("Server response:", text);
+                  throw new Error("Server error. Please try again later.");
+                }
+                throw e; // Re-throw if it's not a SyntaxError
               }
-              throw e; // Re-throw if it's not a SyntaxError
+            });
+          }
+
+          // Try to parse the response as JSON
+          return response.text().then((text) => {
+            try {
+              return JSON.parse(text);
+            } catch (e) {
+              // If JSON parsing fails, check if it's a redirect
+              if (text.includes("<html") && text.includes("redirect")) {
+                // It's likely an HTML redirect page
+                return { url: "/api/dashboard" }; // Redirect to dashboard as fallback
+              }
+              console.error("Invalid JSON response:", text);
+              throw new Error("Invalid response from server");
             }
           });
-        }
+        })
+        .then((data) => {
+          // Reset form
+          wikiForm.reset();
+          infoTableFields.innerHTML = "";
+          contentSections.innerHTML = "";
+          addParagraphToContainer(contentSections);
+          infoImagePreview.innerHTML =
+            '<i class="fas fa-image"></i><span>No image selected</span>';
 
-        // Try to parse the response as JSON
-        return response.text().then((text) => {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            // If JSON parsing fails, check if it's a redirect
-            if (text.includes("<html") && text.includes("redirect")) {
-              // It's likely an HTML redirect page
-              return { url: "/api/dashboard" }; // Redirect to dashboard as fallback
-            }
-            console.error("Invalid JSON response:", text);
-            throw new Error("Invalid response from server");
-          }
+          // Show success message
+          alert("Wiki created successfully!");
+
+          // Refresh the page to show the new wiki in the list
+          window.location.reload();
+        })
+        .catch((error) => {
+          // Reset button state
+          submitBtn.textContent = originalBtnText;
+          submitBtn.disabled = false;
+
+          console.error("Error:", error);
+          alert("There was a problem creating the wiki: " + error.message);
         });
-      })
-      .then((data) => {
-        // Reset form
-        wikiForm.reset();
-        infoTableFields.innerHTML = "";
-        contentSections.innerHTML = "";
-        addParagraphToContainer(contentSections);
-        infoImagePreview.innerHTML =
-          '<i class="fas fa-image"></i><span>No image selected</span>';
-
-        // Show success message
-        alert("Wiki created successfully!");
-
-        // Refresh the page to show the new wiki in the list
-        window.location.reload();
-      })
-      .catch((error) => {
-        // Reset button state
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = false;
-
-        console.error("Error:", error);
-        alert("There was a problem creating the wiki: " + error.message);
-      });
-  });
+    });
+  }
 
   /**
    * Handle wiki card click
@@ -853,185 +895,183 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Close edit panel
    */
-  closeEditPanel.addEventListener("click", function () {
-    editPanel.classList.remove("active");
-    document.body.classList.remove("edit-panel-open");
-    currentWikiId = null;
-  });
+  if (closeEditPanel) {
+    closeEditPanel.addEventListener("click", function () {
+      editPanel.classList.remove("active");
+      document.body.classList.remove("edit-panel-open");
+      currentWikiId = null;
+    });
+  }
 
   /**
    * Form submission for editing a wiki
    */
-  editWikiForm.addEventListener("submit", function (e) {
-    e.preventDefault();
+  if (editWikiForm) {
+    editWikiForm.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    // Validate form
-    if (!validateForm(this)) {
-      alert("Please fill in all required fields before submitting.");
-      return;
-    }
+      // Validate form
+      if (!validateForm(this)) {
+        alert("Please fill in all required fields before submitting.");
+        return;
+      }
 
-    // Create FormData object
-    const formData = new FormData(this);
+      // Create FormData object
+      const formData = new FormData(this);
 
-    // Show loading state
-    const submitBtn = this.querySelector(".submit-btn");
-    const originalBtnText = submitBtn.textContent;
-    submitBtn.textContent = "Saving...";
-    submitBtn.disabled = true;
+      // Add section order and types for maintaining content order
+      const sections = document
+        .getElementById("editContentSections")
+        .querySelectorAll(".content-section");
+      let sectionIndex = 0;
 
-    // Send form data to server
-    fetch(`/api/wiki/${currentWikiId}/update`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => {
-        // Reset button state
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = false;
+      sections.forEach((section) => {
+        // Track the type and order of each section
+        if (section.classList.contains("paragraph-section")) {
+          formData.append("sectionTypes", "paragraph");
+          formData.append("sectionOrder", sectionIndex);
+        } else if (section.classList.contains("image-section")) {
+          formData.append("sectionTypes", "image");
+          formData.append("sectionOrder", sectionIndex);
+        }
+        sectionIndex++;
+      });
 
-        // Check if response is ok
-        if (!response.ok) {
+      // Show loading state
+      const submitBtn = this.querySelector(".submit-btn");
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.textContent = "Saving...";
+      submitBtn.disabled = true;
+
+      // Send form data to server
+      fetch(`/api/wiki/${currentWikiId}/update`, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          // Reset button state
+          submitBtn.textContent = originalBtnText;
+          submitBtn.disabled = false;
+
+          // Check if response is ok
+          if (!response.ok) {
+            return response.text().then((text) => {
+              try {
+                const json = JSON.parse(text);
+                throw new Error(json.message || "Error updating wiki");
+              } catch (e) {
+                if (e instanceof SyntaxError) {
+                  console.error("Server response:", text);
+                  throw new Error("Server error. Please try again later.");
+                }
+                throw e;
+              }
+            });
+          }
+
           return response.text().then((text) => {
             try {
-              const json = JSON.parse(text);
-              throw new Error(json.message || "Error updating wiki");
+              return JSON.parse(text);
             } catch (e) {
-              if (e instanceof SyntaxError) {
-                console.error("Server response:", text);
-                throw new Error("Server error. Please try again later.");
+              if (text.includes("<html") && text.includes("redirect")) {
+                return { url: "/api/dashboard" };
               }
-              throw e;
+              console.error("Invalid JSON response:", text);
+              throw new Error("Invalid response from server");
             }
           });
-        }
+        })
+        .then((data) => {
+          // Show success message
+          alert("Wiki updated successfully!");
 
-        return response.text().then((text) => {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            if (text.includes("<html") && text.includes("redirect")) {
-              return { url: "/api/dashboard" };
-            }
-            console.error("Invalid JSON response:", text);
-            throw new Error("Invalid response from server");
-          }
+          // Close edit panel
+          editPanel.classList.remove("active");
+
+          // Refresh the page to show the updated wiki in the list
+          window.location.reload();
+        })
+        .catch((error) => {
+          // Reset button state
+          submitBtn.textContent = originalBtnText;
+          submitBtn.disabled = false;
+
+          console.error("Error:", error);
+          alert("There was a problem updating the wiki: " + error.message);
         });
+    });
+  }
+
+  /**
+   * Handle delete button click
+   */
+  if (deleteWikiBtn) {
+    deleteWikiBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      deleteModal.classList.add("active");
+    });
+  }
+
+  /**
+   * Handle modal close button click
+   */
+  if (closeModal) {
+    closeModal.addEventListener("click", function () {
+      deleteModal.classList.remove("active");
+    });
+  }
+
+  /**
+   * Handle cancel delete button click
+   */
+  if (cancelDelete) {
+    cancelDelete.addEventListener("click", function () {
+      deleteModal.classList.remove("active");
+    });
+  }
+
+  /**
+   * Handle confirm delete button click
+   */
+  if (confirmDelete) {
+    confirmDelete.addEventListener("click", function () {
+      if (!currentWikiId) return;
+
+      // Show loading state
+      confirmDelete.textContent = "Deleting...";
+      confirmDelete.disabled = true;
+
+      // Send delete request
+      fetch(`/api/wiki/${currentWikiId}/delete`, {
+        method: "DELETE",
       })
-      .then((data) => {
-        // Show success message
-        alert("Wiki updated successfully!");
-
-        // Close edit panel
-        editPanel.classList.remove("active");
-
-        // Refresh the page to show the updated wiki in the list
-        window.location.reload();
-      })
-      .catch((error) => {
-        // Reset button state
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = false;
-
-        console.error("Error:", error);
-        alert("There was a problem updating the wiki: " + error.message);
-      });
-  });
-
-  /**
-   * Delete wiki button click
-   */
-  deleteWikiBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-
-    // Show delete confirmation modal
-    deleteModal.classList.add("active");
-  });
-
-  /**
-   * Close delete modal
-   */
-  closeModal.addEventListener("click", function () {
-    deleteModal.classList.remove("active");
-  });
-
-  /**
-   * Cancel delete
-   */
-  cancelDelete.addEventListener("click", function () {
-    deleteModal.classList.remove("active");
-  });
-
-  /**
-   * Confirm delete
-   */
-  confirmDelete.addEventListener("click", function () {
-    // Show loading state
-    this.textContent = "Deleting...";
-    this.disabled = true;
-
-    // Send delete request
-    fetch(`/api/wiki/${currentWikiId}/delete`, {
-      method: "POST",
-    })
-      .then((response) => {
-        // Reset button state
-        this.textContent = "Delete";
-        this.disabled = false;
-
-        // Check if response is ok
-        if (!response.ok) {
-          return response.text().then((text) => {
-            try {
-              const json = JSON.parse(text);
-              throw new Error(json.message || "Error deleting wiki");
-            } catch (e) {
-              if (e instanceof SyntaxError) {
-                console.error("Server response:", text);
-                throw new Error("Server error. Please try again later.");
-              }
-              throw e;
-            }
-          });
-        }
-
-        return response.text().then((text) => {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            if (text.includes("<html") && text.includes("redirect")) {
-              return { success: true };
-            }
-            console.error("Invalid JSON response:", text);
-            throw new Error("Invalid response from server");
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
           }
+          return response.json();
+        })
+        .then((data) => {
+          // Hide modal
+          deleteModal.classList.remove("active");
+
+          // Show success message
+          alert("Wiki deleted successfully!");
+
+          // Refresh the page to update the wiki list
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while deleting the wiki.");
+        })
+        .finally(() => {
+          // Reset button state
+          confirmDelete.textContent = "Delete";
+          confirmDelete.disabled = false;
         });
-      })
-      .then((data) => {
-        // Close delete modal
-        deleteModal.classList.remove("active");
-
-        // Close edit panel
-        editPanel.classList.remove("active");
-
-        // Show success message
-        alert("Wiki deleted successfully!");
-
-        // Refresh the page to update the wiki list
-        window.location.reload();
-      })
-      .catch((error) => {
-        // Reset button state
-        this.textContent = "Delete";
-        this.disabled = false;
-
-        // Close delete modal
-        deleteModal.classList.remove("active");
-
-        console.error("Error:", error);
-        alert("There was a problem deleting the wiki: " + error.message);
-      });
-  });
+    });
+  }
 
   /**
    * Validate form
@@ -1171,18 +1211,43 @@ document.addEventListener("DOMContentLoaded", function () {
       body: formData,
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+        return response.json().then((data) => {
+          if (!response.ok) {
+            if (
+              response.status === 400 &&
+              data.message === "A news article with this URL already exists"
+            ) {
+              throw new Error(
+                "A news article with this URL already exists. Please use a different title"
+              );
+            }
+            throw new Error(
+              data.message || `HTTP error! Status: ${response.status}`
+            );
+          }
+          return data;
+        });
       })
       .then((data) => {
         if (data.success) {
           // Show success message
           alert("News article created successfully!");
 
-          // Redirect to the news article page
-          window.location.href = data.url;
+          // Reset the form inputs
+          newsForm.reset();
+
+          // Clear the content sections
+          newsContentSections.innerHTML = "";
+
+          // Reset the info image preview
+          newsInfoImagePreview.innerHTML =
+            '<i class="fas fa-image"></i><span>No image selected</span>';
+
+          // Clear info fields
+          newsInfoTableFields.innerHTML = "";
+
+          // Refresh the page to show the new article in the list
+          window.location.reload();
         } else {
           // Show error message
           alert(`Error: ${data.message}`);
@@ -1190,7 +1255,9 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("An error occurred while creating the news article.");
+        alert(
+          error.message || "An error occurred while creating the news article."
+        );
       })
       .finally(() => {
         // Reset button state

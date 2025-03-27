@@ -43,7 +43,12 @@
         <section id="create-section" class="wiki-creator tab-content active">
           <h2>Create New Wiki</h2>
 
-          <form id="wikiForm" class="wiki-form" enctype="multipart/form-data">
+          <form
+            id="wikiForm"
+            class="wiki-form"
+            method="POST"
+            enctype="multipart/form-data"
+          >
             <!-- Wiki Title Section -->
             <div class="form-section">
               <h3>Title</h3>
@@ -211,7 +216,12 @@
         <section id="createNews-section" class="news-creator tab-content">
           <h2>Create New News Article</h2>
 
-          <form id="newsForm" class="news-form" enctype="multipart/form-data">
+          <form
+            id="newsForm"
+            class="news-form"
+            method="POST"
+            enctype="multipart/form-data"
+          >
             <!-- News Title Section -->
             <div class="form-section">
               <h3>Title</h3>
@@ -597,6 +607,7 @@
             <form
               id="photoForm"
               class="photo-form"
+              method="POST"
               enctype="multipart/form-data"
             >
               <div class="form-group">
@@ -672,6 +683,7 @@
             <form
               id="editWikiForm"
               class="wiki-form"
+              method="POST"
               enctype="multipart/form-data"
             >
               <!-- Hidden Wiki ID -->
@@ -787,7 +799,8 @@
 
             <form
               id="editNewsForm"
-              class="wiki-form"
+              class="news-form"
+              method="POST"
               enctype="multipart/form-data"
             >
               <!-- Hidden input for news ID -->
@@ -1051,7 +1064,12 @@
           <button class="close-modal">&times;</button>
         </div>
         <div class="modal-body">
-          <form id="editTweetForm">
+          <form
+            id="editTweetForm"
+            class="tweet-form"
+            method="POST"
+            enctype="multipart/form-data"
+          >
             <div class="form-group">
               <label for="editTweetText">Edit your tweet</label>
               <textarea

@@ -208,6 +208,8 @@ router.post(
         subtitles,
         paragraphs,
         imageCaptions,
+        sectionTypes,
+        sectionOrder,
       } = req.body;
 
       // If urlSlug is empty, generate it from title
@@ -291,6 +293,8 @@ router.post(
             allowed_formats: ["jpg", "png", "webp"],
           });
 
+          contentImagePublicIds.push({ publicId: result.public_id });
+
           const imageUrl = cloudinary.v2.url(result.public_id, {
             fetch_format: "auto",
             quality: "auto",
@@ -341,27 +345,100 @@ router.post(
         ? [imageCaptions]
         : [];
 
-      // Add paragraphs and subtitles
-      for (let i = 0; i < paragraphsArray.length; i++) {
-        if (subtitlesArray[i]) {
-          htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
+      // Create content sections in the correct order
+      let paragraphIndex = 0;
+      let imageIndex = 0;
+      let sections = [];
+
+      // If sectionTypes is provided, use it to determine the order
+      if (sectionTypes) {
+        const typesArray = Array.isArray(sectionTypes)
+          ? sectionTypes
+          : [sectionTypes];
+
+        typesArray.forEach((type, index) => {
+          if (type === "paragraph" && paragraphIndex < paragraphsArray.length) {
+            sections.push({
+              type: "paragraph",
+              subtitle: subtitlesArray[paragraphIndex] || "",
+              content: paragraphsArray[paragraphIndex] || "",
+              index: index,
+            });
+            paragraphIndex++;
+          } else if (type === "image" && imageIndex < contentImageUrls.length) {
+            sections.push({
+              type: "image",
+              url: contentImageUrls[imageIndex],
+              caption: imageCaptionsArray[imageIndex] || "",
+              index: index,
+            });
+            imageIndex++;
+          }
+        });
+      } else {
+        // Fallback to alternating paragraphs and images
+        // First, add all paragraphs
+        for (let i = 0; i < paragraphsArray.length; i++) {
+          sections.push({
+            type: "paragraph",
+            subtitle: subtitlesArray[i] || "",
+            content: paragraphsArray[i] || "",
+            index: i,
+          });
         }
 
-        if (paragraphsArray[i]) {
-          htmlContent += `<p>${paragraphsArray[i]}</p>`;
+        // Then add all images
+        for (let i = 0; i < contentImageUrls.length; i++) {
+          sections.push({
+            type: "image",
+            url: contentImageUrls[i],
+            caption: imageCaptionsArray[i] || "",
+            index: paragraphsArray.length + i,
+          });
         }
       }
 
-      // Add images with captions
-      for (let i = 0; i < contentImageUrls.length; i++) {
-        const caption = imageCaptionsArray[i] || "";
-        htmlContent += `
-        <div class="article-image">
-          <img src="${contentImageUrls[i]}" alt="${caption}">
-          ${caption ? `<p class="image-caption">${caption}</p>` : ""}
-        </div>
-      `;
+      // Sort sections by index if section order is provided
+      if (sectionOrder) {
+        const orderArray = Array.isArray(sectionOrder)
+          ? sectionOrder
+          : [sectionOrder];
+        // Create a mapping of index to order
+        const orderMap = {};
+        orderArray.forEach((order, i) => {
+          orderMap[i] = parseInt(order, 10);
+        });
+
+        // Sort sections based on the order map
+        sections.sort((a, b) => {
+          return (
+            (orderMap[a.index] || a.index) - (orderMap[b.index] || b.index)
+          );
+        });
       }
+
+      // Generate HTML from sorted sections
+      sections.forEach((section) => {
+        if (section.type === "paragraph") {
+          if (section.subtitle) {
+            htmlContent += `<h2>${section.subtitle}</h2>`;
+          }
+          if (section.content) {
+            htmlContent += `<p>${section.content}</p>`;
+          }
+        } else if (section.type === "image") {
+          htmlContent += `
+          <div class="article-image">
+            <img src="${section.url}" alt="${section.caption}">
+            ${
+              section.caption
+                ? `<p class="image-caption">${section.caption}</p>`
+                : ""
+            }
+          </div>
+          `;
+        }
+      });
 
       // Update wiki document using the collection
       await wikisCollection.updateOne(
@@ -401,7 +478,7 @@ router.post(
 );
 
 // Delete wiki
-router.post("/api/wiki/:id/delete", isAuthenticated, async (req, res) => {
+router.delete("/api/wiki/:id/delete", isAuthenticated, async (req, res) => {
   try {
     // Validate the ID format
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -417,16 +494,28 @@ router.post("/api/wiki/:id/delete", isAuthenticated, async (req, res) => {
     const objectId = new mongoose.Types.ObjectId(req.params.id);
     const wiki = await wikisCollection.findOne({ _id: objectId });
 
-    const publicId = wiki.infoImage.publicId;
-    const contentImagePublicIds = wiki.contentImageIds.map((id) => id.publicId);
-    contentImagePublicIds.forEach((id) => {
-      cloudinary.v2.uploader.destroy(id);
-    });
+    if (!wiki) {
+      return res.status(404).json({
+        success: false,
+        message: "Wiki not found",
+      });
+    }
 
-    cloudinary.v2.uploader.destroy(publicId);
+    // Delete images from Cloudinary
+    if (wiki.infoImage && wiki.infoImage.publicId) {
+      cloudinary.v2.uploader.destroy(wiki.infoImage.publicId);
+    }
+
+    // Delete content images
+    if (wiki.contentImageIds && wiki.contentImageIds.length > 0) {
+      wiki.contentImageIds.forEach((id) => {
+        if (id.publicId) {
+          cloudinary.v2.uploader.destroy(id.publicId);
+        }
+      });
+    }
 
     // Delete wiki by ID
-
     const deleteResult = await wikisCollection.deleteOne({ _id: objectId });
 
     if (deleteResult.deletedCount === 0) {
@@ -467,6 +556,8 @@ router.post(
         subtitles,
         paragraphs,
         imageCaptions,
+        sectionTypes,
+        sectionOrder,
       } = req.body;
 
       // If urlSlug is empty, generate it from title
@@ -551,6 +642,8 @@ router.post(
             allowed_formats: ["jpg", "png", "webp"],
           });
 
+          contentImagePublicIds.push({ publicId: result.public_id });
+
           const imageUrl = cloudinary.v2.url(result.public_id, {
             fetch_format: "auto",
             quality: "auto",
@@ -601,27 +694,100 @@ router.post(
         ? [imageCaptions]
         : [];
 
-      // Add paragraphs and subtitles
-      for (let i = 0; i < paragraphsArray.length; i++) {
-        if (subtitlesArray[i]) {
-          htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
+      // Create content sections in the correct order
+      let paragraphIndex = 0;
+      let imageIndex = 0;
+      let sections = [];
+
+      // If sectionTypes is provided, use it to determine the order
+      if (sectionTypes) {
+        const typesArray = Array.isArray(sectionTypes)
+          ? sectionTypes
+          : [sectionTypes];
+
+        typesArray.forEach((type, index) => {
+          if (type === "paragraph" && paragraphIndex < paragraphsArray.length) {
+            sections.push({
+              type: "paragraph",
+              subtitle: subtitlesArray[paragraphIndex] || "",
+              content: paragraphsArray[paragraphIndex] || "",
+              index: index,
+            });
+            paragraphIndex++;
+          } else if (type === "image" && imageIndex < contentImageUrls.length) {
+            sections.push({
+              type: "image",
+              url: contentImageUrls[imageIndex],
+              caption: imageCaptionsArray[imageIndex] || "",
+              index: index,
+            });
+            imageIndex++;
+          }
+        });
+      } else {
+        // Fallback to alternating paragraphs and images
+        // First, add all paragraphs
+        for (let i = 0; i < paragraphsArray.length; i++) {
+          sections.push({
+            type: "paragraph",
+            subtitle: subtitlesArray[i] || "",
+            content: paragraphsArray[i] || "",
+            index: i,
+          });
         }
 
-        if (paragraphsArray[i]) {
-          htmlContent += `<p>${paragraphsArray[i]}</p>`;
+        // Then add all images
+        for (let i = 0; i < contentImageUrls.length; i++) {
+          sections.push({
+            type: "image",
+            url: contentImageUrls[i],
+            caption: imageCaptionsArray[i] || "",
+            index: paragraphsArray.length + i,
+          });
         }
       }
 
-      // Add images with captions
-      for (let i = 0; i < contentImageUrls.length; i++) {
-        const caption = imageCaptionsArray[i] || "";
-        htmlContent += `
-        <div class="article-image">
-          <img src="${contentImageUrls[i]}" alt="${caption}">
-          ${caption ? `<p class="image-caption">${caption}</p>` : ""}
-        </div>
-      `;
+      // Sort sections by index if section order is provided
+      if (sectionOrder) {
+        const orderArray = Array.isArray(sectionOrder)
+          ? sectionOrder
+          : [sectionOrder];
+        // Create a mapping of index to order
+        const orderMap = {};
+        orderArray.forEach((order, i) => {
+          orderMap[i] = parseInt(order, 10);
+        });
+
+        // Sort sections based on the order map
+        sections.sort((a, b) => {
+          return (
+            (orderMap[a.index] || a.index) - (orderMap[b.index] || b.index)
+          );
+        });
       }
+
+      // Generate HTML from sorted sections
+      sections.forEach((section) => {
+        if (section.type === "paragraph") {
+          if (section.subtitle) {
+            htmlContent += `<h2>${section.subtitle}</h2>`;
+          }
+          if (section.content) {
+            htmlContent += `<p>${section.content}</p>`;
+          }
+        } else if (section.type === "image") {
+          htmlContent += `
+          <div class="article-image">
+            <img src="${section.url}" alt="${section.caption}">
+            ${
+              section.caption
+                ? `<p class="image-caption">${section.caption}</p>`
+                : ""
+            }
+          </div>
+          `;
+        }
+      });
 
       // Create new wiki document
       const newWiki = {
@@ -899,8 +1065,8 @@ router.post(
         subtitles,
         paragraphs,
         imageCaptions,
-        sectionTypes, // Add new field to track section types
-        sectionOrder, // Add new field to track section order
+        sectionTypes,
+        sectionOrder,
         category,
         featured,
         publishDate,
@@ -950,51 +1116,89 @@ router.post(
       }
 
       // Process content images
-      const contentImageUrls = [];
-      const contentImagePublicIds = [];
+      let contentImageUrls = [];
+      let contentImagePublicIds = [];
 
-      if (
-        req.files &&
-        req.files["contentImages[]"] &&
-        req.files["contentImages[]"].length > 0
-      ) {
-        for (const file of req.files["contentImages[]"]) {
-          const fileContent = await dataUri(file);
-          const result = await uploader.upload(fileContent, {
-            resource_type: "auto",
-            allowed_formats: ["jpg", "png", "webp"],
-          });
+      // First, check if new images were uploaded
+      const hasNewContentImages =
+        (req.files &&
+          req.files["contentImages[]"] &&
+          req.files["contentImages[]"].length > 0) ||
+        (req.files &&
+          req.files.contentImages &&
+          req.files.contentImages.length > 0);
 
-          // Store the publicId
-          contentImagePublicIds.push({ publicId: result.public_id });
+      // Process new uploads if they exist
+      if (hasNewContentImages) {
+        if (
+          req.files["contentImages[]"] &&
+          req.files["contentImages[]"].length > 0
+        ) {
+          for (const file of req.files["contentImages[]"]) {
+            const fileContent = await dataUri(file);
+            const result = await uploader.upload(fileContent, {
+              resource_type: "auto",
+              allowed_formats: ["jpg", "png", "webp"],
+            });
 
-          const imageUrl = cloudinary.v2.url(result.public_id, {
-            fetch_format: "auto",
-            quality: "auto",
-          });
+            contentImagePublicIds.push({ publicId: result.public_id });
 
-          contentImageUrls.push(imageUrl);
+            const imageUrl = cloudinary.v2.url(result.public_id, {
+              fetch_format: "auto",
+              quality: "auto",
+            });
+
+            contentImageUrls.push(imageUrl);
+          }
+        } else if (
+          req.files.contentImages &&
+          req.files.contentImages.length > 0
+        ) {
+          for (const file of req.files.contentImages) {
+            const fileContent = await dataUri(file);
+            const result = await uploader.upload(fileContent, {
+              resource_type: "auto",
+              allowed_formats: ["jpg", "png", "webp"],
+            });
+
+            contentImagePublicIds.push({ publicId: result.public_id });
+
+            const imageUrl = cloudinary.v2.url(result.public_id, {
+              fetch_format: "auto",
+              quality: "auto",
+            });
+
+            contentImageUrls.push(imageUrl);
+          }
         }
-      } else if (
-        req.files &&
-        req.files.contentImages &&
-        req.files.contentImages.length > 0
-      ) {
-        for (const file of req.files.contentImages) {
-          const fileContent = await dataUri(file);
-          const result = await uploader.upload(fileContent, {
-            resource_type: "auto",
-            allowed_formats: ["jpg", "png", "webp"],
-          });
+      } else {
+        // If no new images were uploaded, we need to use the existing images from the content
 
-          contentImagePublicIds.push({ publicId: result.public_id });
+        // Check if we're updating an article with existing images
+        if (sectionTypes && sectionTypes.includes("image")) {
+          // Use a regex to extract image URLs from the HTML content
+          const imgUrlRegex = /<img\s+src="([^"]+)"/g;
+          const imgCaptionRegex = /<p\s+class="image-caption">([^<]+)<\/p>/g;
 
-          const imageUrl = cloudinary.v2.url(result.public_id, {
-            fetch_format: "auto",
-            quality: "auto",
-          });
+          let match;
+          // Extract image URLs
+          while ((match = imgUrlRegex.exec(newsArticle.content)) !== null) {
+            contentImageUrls.push(match[1]);
+          }
 
-          contentImageUrls.push(imageUrl);
+          // Extract image captions if needed
+          let captionsArray = [];
+          while ((match = imgCaptionRegex.exec(newsArticle.content)) !== null) {
+            captionsArray.push(match[1]);
+          }
+
+          // Use existing image public IDs to preserve them
+          if (
+            newsArticle.contentImageIds &&
+            newsArticle.contentImageIds.length > 0
+          ) {
+            contentImagePublicIds = [...newsArticle.contentImageIds];
+          }
         }
       }
 
@@ -1019,7 +1223,7 @@ router.post(
         }
       }
 
-      // Generate HTML content preserving the order of paragraphs and images
+      // Generate HTML content using section types and order
       let htmlContent = "";
 
       // Convert input arrays to ensure they're arrays even if single items
@@ -1039,80 +1243,100 @@ router.post(
         ? [imageCaptions]
         : [];
 
-      // Track paragraph and image counters
-      let paragraphCounter = 0;
-      let imageCounter = 0;
+      // Create content sections in the correct order
+      let paragraphIndex = 0;
+      let imageIndex = 0;
+      let sections = [];
 
-      // If sectionOrder is provided (from the form), use it to determine content order
-      if (sectionOrder && sectionTypes) {
-        const orderArray = Array.isArray(sectionOrder)
-          ? sectionOrder
-          : [sectionOrder];
+      // If sectionTypes is provided, use it to determine the order
+      if (sectionTypes) {
         const typesArray = Array.isArray(sectionTypes)
           ? sectionTypes
           : [sectionTypes];
 
-        // Process sections in the order provided
-        for (let i = 0; i < orderArray.length; i++) {
-          const index = parseInt(orderArray[i], 10);
-          const type = typesArray[i];
-
-          if (type === "paragraph") {
-            // Add paragraph with subtitle if available
-            if (paragraphCounter < paragraphsArray.length) {
-              const subtitle = subtitlesArray[paragraphCounter] || "";
-              const paragraph = paragraphsArray[paragraphCounter] || "";
-
-              if (subtitle) {
-                htmlContent += `<h2>${subtitle}</h2>`;
-              }
-
-              if (paragraph) {
-                htmlContent += `<p>${paragraph}</p>`;
-              }
-
-              paragraphCounter++;
-            }
-          } else if (type === "image") {
-            // Add image with caption if available
-            if (imageCounter < contentImageUrls.length) {
-              const caption = imageCaptionsArray[imageCounter] || "";
-
-              htmlContent += `
-              <div class="article-image">
-                <img src="${contentImageUrls[imageCounter]}" alt="${caption}">
-                ${caption ? `<p class="image-caption">${caption}</p>` : ""}
-              </div>
-              `;
-
-              imageCounter++;
-            }
+        typesArray.forEach((type, index) => {
+          if (type === "paragraph" && paragraphIndex < paragraphsArray.length) {
+            sections.push({
+              type: "paragraph",
+              subtitle: subtitlesArray[paragraphIndex] || "",
+              content: paragraphsArray[paragraphIndex] || "",
+              index: index,
+            });
+            paragraphIndex++;
+          } else if (type === "image" && imageIndex < contentImageUrls.length) {
+            sections.push({
+              type: "image",
+              url: contentImageUrls[imageIndex],
+              caption: imageCaptionsArray[imageIndex] || "",
+              index: index,
+            });
+            imageIndex++;
           }
-        }
+        });
       } else {
-        // Fallback to the old method if no ordering data is provided
-        // Add paragraphs and subtitles
+        // Fallback to alternating paragraphs and images
+        // First, add all paragraphs
         for (let i = 0; i < paragraphsArray.length; i++) {
-          if (subtitlesArray[i]) {
-            htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
-          }
-
-          if (paragraphsArray[i]) {
-            htmlContent += `<p>${paragraphsArray[i]}</p>`;
-          }
+          sections.push({
+            type: "paragraph",
+            subtitle: subtitlesArray[i] || "",
+            content: paragraphsArray[i] || "",
+            index: i,
+          });
         }
 
-        // Add images with captions
+        // Then add all images
         for (let i = 0; i < contentImageUrls.length; i++) {
-          const caption = imageCaptionsArray[i] || "";
+          sections.push({
+            type: "image",
+            url: contentImageUrls[i],
+            caption: imageCaptionsArray[i] || "",
+            index: paragraphsArray.length + i,
+          });
+        }
+      }
+
+      // Sort sections by index if section order is provided
+      if (sectionOrder) {
+        const orderArray = Array.isArray(sectionOrder)
+          ? sectionOrder
+          : [sectionOrder];
+        // Create a mapping of index to order
+        const orderMap = {};
+        orderArray.forEach((order, i) => {
+          orderMap[i] = parseInt(order, 10);
+        });
+
+        // Sort sections based on the order map
+        sections.sort((a, b) => {
+          return (
+            (orderMap[a.index] || a.index) - (orderMap[b.index] || b.index)
+          );
+        });
+      }
+
+      // Generate HTML from sorted sections
+      sections.forEach((section) => {
+        if (section.type === "paragraph") {
+          if (section.subtitle) {
+            htmlContent += `<h2>${section.subtitle}</h2>`;
+          }
+          if (section.content) {
+            htmlContent += `<p>${section.content}</p>`;
+          }
+        } else if (section.type === "image") {
           htmlContent += `
           <div class="article-image">
-            <img src="${contentImageUrls[i]}" alt="${caption}">
-            ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+            <img src="${section.url}" alt="${section.caption}">
+            ${
+              section.caption
+                ? `<p class="image-caption">${section.caption}</p>`
+                : ""
+            }
           </div>
           `;
         }
-      }
+      });
 
       // Update news article
       newsArticle.title = title;
@@ -1124,6 +1348,12 @@ router.post(
       };
       newsArticle.infoFields = infoFields;
       newsArticle.content = htmlContent;
+
+      // Only update content image IDs if new images were uploaded
+      if (hasNewContentImages) {
+        newsArticle.contentImageIds = contentImagePublicIds;
+      }
+
       newsArticle.category = category || "General";
       newsArticle.featured = featured === "true" || featured === true;
       newsArticle.publishDate = publishDate
@@ -1131,12 +1361,7 @@ router.post(
         : new Date();
       newsArticle.lastModified = new Date();
 
-      // Only add new contentImageIds if we have uploaded new images
-      if (contentImagePublicIds.length > 0) {
-        newsArticle.contentImageIds = contentImagePublicIds;
-      }
-
-      // Save updated news article
+      // Save news article
       await newsArticle.save();
 
       // Return success with the URL
@@ -1172,8 +1397,8 @@ router.post(
         subtitles,
         paragraphs,
         imageCaptions,
-        sectionTypes, // Add new field to track section types
-        sectionOrder, // Add new field to track section order
+        sectionTypes,
+        sectionOrder,
         category,
         featured,
         publishDate,
@@ -1224,6 +1449,7 @@ router.post(
       const contentImageUrls = [];
       const contentImagePublicIds = [];
 
+      // Check for contentImages[] field
       if (
         req.files &&
         req.files["contentImages[]"] &&
@@ -1245,7 +1471,9 @@ router.post(
 
           contentImageUrls.push(imageUrl);
         }
-      } else if (
+      }
+      // Also check for contentImages field (without array notation)
+      else if (
         req.files &&
         req.files.contentImages &&
         req.files.contentImages.length > 0
@@ -1289,7 +1517,7 @@ router.post(
         }
       }
 
-      // Generate HTML content preserving the order of paragraphs and images
+      // Generate HTML content using section types and order
       let htmlContent = "";
 
       // Convert input arrays to ensure they're arrays even if single items
@@ -1309,80 +1537,100 @@ router.post(
         ? [imageCaptions]
         : [];
 
-      // Track paragraph and image counters
-      let paragraphCounter = 0;
-      let imageCounter = 0;
+      // Create content sections in the correct order
+      let paragraphIndex = 0;
+      let imageIndex = 0;
+      let sections = [];
 
-      // If sectionOrder is provided (from the form), use it to determine content order
-      if (sectionOrder && sectionTypes) {
-        const orderArray = Array.isArray(sectionOrder)
-          ? sectionOrder
-          : [sectionOrder];
+      // If sectionTypes is provided, use it to determine the order
+      if (sectionTypes) {
         const typesArray = Array.isArray(sectionTypes)
           ? sectionTypes
           : [sectionTypes];
 
-        // Process sections in the order provided
-        for (let i = 0; i < orderArray.length; i++) {
-          const index = parseInt(orderArray[i], 10);
-          const type = typesArray[i];
-
-          if (type === "paragraph") {
-            // Add paragraph with subtitle if available
-            if (paragraphCounter < paragraphsArray.length) {
-              const subtitle = subtitlesArray[paragraphCounter] || "";
-              const paragraph = paragraphsArray[paragraphCounter] || "";
-
-              if (subtitle) {
-                htmlContent += `<h2>${subtitle}</h2>`;
-              }
-
-              if (paragraph) {
-                htmlContent += `<p>${paragraph}</p>`;
-              }
-
-              paragraphCounter++;
-            }
-          } else if (type === "image") {
-            // Add image with caption if available
-            if (imageCounter < contentImageUrls.length) {
-              const caption = imageCaptionsArray[imageCounter] || "";
-
-              htmlContent += `
-              <div class="article-image">
-                <img src="${contentImageUrls[imageCounter]}" alt="${caption}">
-                ${caption ? `<p class="image-caption">${caption}</p>` : ""}
-              </div>
-              `;
-
-              imageCounter++;
-            }
+        typesArray.forEach((type, index) => {
+          if (type === "paragraph" && paragraphIndex < paragraphsArray.length) {
+            sections.push({
+              type: "paragraph",
+              subtitle: subtitlesArray[paragraphIndex] || "",
+              content: paragraphsArray[paragraphIndex] || "",
+              index: index,
+            });
+            paragraphIndex++;
+          } else if (type === "image" && imageIndex < contentImageUrls.length) {
+            sections.push({
+              type: "image",
+              url: contentImageUrls[imageIndex],
+              caption: imageCaptionsArray[imageIndex] || "",
+              index: index,
+            });
+            imageIndex++;
           }
-        }
+        });
       } else {
-        // Fallback to the old method if no ordering data is provided
-        // Add paragraphs and subtitles
+        // Fallback to alternating paragraphs and images
+        // First, add all paragraphs
         for (let i = 0; i < paragraphsArray.length; i++) {
-          if (subtitlesArray[i]) {
-            htmlContent += `<h2>${subtitlesArray[i]}</h2>`;
-          }
-
-          if (paragraphsArray[i]) {
-            htmlContent += `<p>${paragraphsArray[i]}</p>`;
-          }
+          sections.push({
+            type: "paragraph",
+            subtitle: subtitlesArray[i] || "",
+            content: paragraphsArray[i] || "",
+            index: i,
+          });
         }
 
-        // Add images with captions
+        // Then add all images
         for (let i = 0; i < contentImageUrls.length; i++) {
-          const caption = imageCaptionsArray[i] || "";
+          sections.push({
+            type: "image",
+            url: contentImageUrls[i],
+            caption: imageCaptionsArray[i] || "",
+            index: paragraphsArray.length + i,
+          });
+        }
+      }
+
+      // Sort sections by index if section order is provided
+      if (sectionOrder) {
+        const orderArray = Array.isArray(sectionOrder)
+          ? sectionOrder
+          : [sectionOrder];
+        // Create a mapping of index to order
+        const orderMap = {};
+        orderArray.forEach((order, i) => {
+          orderMap[i] = parseInt(order, 10);
+        });
+
+        // Sort sections based on the order map
+        sections.sort((a, b) => {
+          return (
+            (orderMap[a.index] || a.index) - (orderMap[b.index] || b.index)
+          );
+        });
+      }
+
+      // Generate HTML from sorted sections
+      sections.forEach((section) => {
+        if (section.type === "paragraph") {
+          if (section.subtitle) {
+            htmlContent += `<h2>${section.subtitle}</h2>`;
+          }
+          if (section.content) {
+            htmlContent += `<p>${section.content}</p>`;
+          }
+        } else if (section.type === "image") {
           htmlContent += `
           <div class="article-image">
-            <img src="${contentImageUrls[i]}" alt="${caption}">
-            ${caption ? `<p class="image-caption">${caption}</p>` : ""}
+            <img src="${section.url}" alt="${section.caption}">
+            ${
+              section.caption
+                ? `<p class="image-caption">${section.caption}</p>`
+                : ""
+            }
           </div>
           `;
         }
-      }
+      });
 
       // Create new news article
       const newNewsArticle = new News({

@@ -5,6 +5,10 @@ import { fileURLToPath } from "url";
 import route from "./routes/route.mjs";
 import ejs from "ejs";
 import { notFoundHandler, errorHandler } from "./middlewares.mjs";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -14,10 +18,11 @@ app.use(express.json());
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "ejs");
 
+// Use environment variable for PORT
 const PORT = process.env.PORT || 3000;
 
-const connectionString =
-  "mongodb+srv://root:1Ow6PKsLv1It8K2S@cluster0.ok6h4.mongodb.net/cungoland?retryWrites=true&w=majority&appName=Cluster0";
+// Use environment variable for MongoDB connection string
+const connectionString = process.env.MONGODB_URI;
 
 mongoose
   .connect(connectionString) // just change localhost to 0.0.0.0 to prevent error. (MongoDB seems to be not compatible with NodeJS v17)

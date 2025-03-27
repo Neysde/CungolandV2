@@ -3,14 +3,17 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { User } from "../mongoose/schemas/user.mjs";
 import { hashPassword, comparePassword } from "../encryptpass.mjs";
-
 import session from "express-session";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const router = express.Router();
 
 router.use(
   session({
-    secret: "::SESSION_SECRET::", // Replace with a strong secret
+    secret: process.env.SESSION_SECRET, // Using environment variable for session secret
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }, // Set to true if using HTTPS

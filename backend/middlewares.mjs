@@ -3,13 +3,17 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import { fileTypeFromBuffer } from "file-type";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 //cloudiary
 const cloudinaryConfig = (req, res, next) => {
   config({
-    cloud_name: "dttnr1rnp",
-    api_key: "188769541222425",
-    api_secret: "V2q-K0FstkjSRaULlmdEMYQUXlc",
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
   });
   next();
 };
