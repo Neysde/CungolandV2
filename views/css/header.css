@@ -58,6 +58,13 @@
   color: #ffffff;
 }
 
+.flag-image {
+  height: 30px;
+  margin-left: 10px;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 /* Mobile menu button styles */
 .mobile-menu-toggle {
   display: block;
@@ -275,5 +282,21 @@
     opacity: 0.8;
     border-left: none;
     border-bottom: 2px solid #3498db;
+  }
+
+  .flag-image {
+    height: 35px;
+    margin-left: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .flag-image {
+    height: 25px;
+    margin-left: 8px;
+  }
+
+  .site-title {
+    font-size: 1.3rem;
   }
 }

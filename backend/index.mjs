@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import route from "./routes/route.mjs";
 import ejs from "ejs";
+import { notFoundHandler, errorHandler } from "./middlewares.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -24,6 +25,12 @@ mongoose
   .catch((err) => console.log(`Error: ${err}`));
 
 app.use(route);
+
+// Use the 404 handler middleware for routes that don't match
+app.use(notFoundHandler);
+
+// Use the error handler middleware
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

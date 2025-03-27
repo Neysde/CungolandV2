@@ -1,6 +1,7 @@
 import { config, uploader, v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import path from "path";
+import { fileURLToPath } from "url";
 import { fileTypeFromBuffer } from "file-type";
 
 //cloudiary
@@ -61,4 +62,32 @@ export function isAuthenticated(req, res, next) {
     return next();
   }
   res.redirect("/api/login");
+}
+
+// 404 handler for routes that don't match any previous routes
+export function notFoundHandler(req, res, next) {
+  // Render the error.ejs template with a 404 message
+  res.status(404).render("error", {
+    message: "Page not found. The requested URL does not exist.",
+    error: { status: 404 },
+    layout: false,
+  });
+}
+
+// General error handler middleware
+export function errorHandler(err, req, res, next) {
+  // Log the error for server-side debugging
+  console.error(err.stack);
+
+  // Set status code (default to 500 if none provided)
+  const statusCode = err.status || 500;
+
+  // Render the error.ejs template
+  res.status(statusCode).render("error", {
+    message:
+      statusCode === 404
+        ? "Page not found"
+        : "Something went wrong on our end.",
+    error: process.env.NODE_ENV === "development" ? err : null,
+  });
 }

@@ -105,6 +105,7 @@ router.get("/wiki/:slug", async (req, res) => {
       return res.status(404).render("error.ejs", {
         message: "Wiki page not found",
         error: { status: 404, stack: "" },
+        layout: false,
       });
     }
 
@@ -125,6 +126,7 @@ router.get("/wiki/:slug", async (req, res) => {
         status: 500,
         stack: process.env.NODE_ENV === "development" ? error.stack : "",
       },
+      layout: false,
     });
   }
 });
@@ -732,6 +734,7 @@ router.get("/photos-from-cungoland", async (req, res) => {
     res.status(500).render("error.ejs", {
       message: "Failed to load photos",
       error: err,
+      layout: false,
     });
   }
 });
@@ -799,6 +802,7 @@ router.get("/news/:slug", async (req, res) => {
       return res.status(404).render("error.ejs", {
         message: "News article not found",
         error: { status: 404, stack: "" },
+        layout: false,
       });
     }
 
@@ -823,6 +827,7 @@ router.get("/news/:slug", async (req, res) => {
         status: 500,
         stack: process.env.NODE_ENV === "development" ? error.stack : "",
       },
+      layout: false,
     });
   }
 });
