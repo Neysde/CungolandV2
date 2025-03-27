@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const usernameInput = document.getElementById("username");
   const passwordInput = document.getElementById("password");
   const togglePasswordBtn = document.getElementById("togglePassword");
-  const rememberMeCheckbox = document.getElementById("rememberMe");
 
   // Initialize form state
   initializeFormState();
@@ -116,19 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
    * Initialize form state from localStorage if available
    */
   function initializeFormState() {
-    const rememberedUser = localStorage.getItem("rememberedUser");
-    const rememberMe = localStorage.getItem("rememberMe");
-
-    if (rememberedUser && rememberMe === "true") {
-      usernameInput.value = rememberedUser;
-      rememberMeCheckbox.checked = true;
-
-      // Focus on password field for better UX since username is already filled
-      passwordInput.focus();
-    } else {
-      // Focus on the first field when form loads
-      usernameInput.focus();
-    }
+    // Focus on username input when form loads
+    usernameInput.focus();
   }
 
   /**
