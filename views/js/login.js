@@ -75,40 +75,66 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    // Add loading state to button when form is being submitted
+    const submitButton = loginForm.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.textContent = "Signing in...";
+    submitButton.disabled = true;
+
     try {
       const credentials = {
         username: usernameInput.value,
         password: passwordInput.value,
       };
 
+      // Send AJAX request to the API endpoint
       const response = await fetch("/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(credentials),
+        credentials: "same-origin",
+        redirect: "follow",
       });
+
+      // Check if response is not successful
       if (!response.ok) {
-        const errorData = await response.json();
-        // Display server-side error message to the user
-        return showFormError(errorData.message || "Login failed");
+        let errorMsg = "Login failed";
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.message || errorMsg;
+        } catch (e) {
+          console.error("Error parsing error response:", e);
+        }
+
+        showFormError(errorMsg);
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+        return;
       }
 
-      window.location.href = "/api/dashboard";
+      // Success! Parse the response JSON
+      try {
+        const data = await response.json();
+        console.log("Login successful:", data);
+
+        // Redirect to the dashboard or specified URL
+        window.location.href = data.redirectUrl || "/api/dashboard";
+      } catch (e) {
+        console.error("Error parsing success response:", e);
+        // Fallback redirect in case JSON parsing fails
+        window.location.href = "/api/dashboard";
+      }
     } catch (err) {
       // Log error to console for debugging
-      console.log("Error during login:", err);
+      console.error("Error during login:", err);
       // Display a generic error message to the user
-      //showFormError("An unexpected error occurred. Please try again later.");
+      showFormError("An unexpected error occurred. Please try again later.");
+      // Reset button state
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
     }
-
-    // Add loading state to button when form is being submitted
-    const submitButton = loginForm.querySelector('button[type="submit"]');
-    /* submitButton.textContent = "Signing in...";
-    submitButton.disabled = true; */
-
-    // Note: In a real implementation, you might want to prevent the default
-    // form submission and use fetch API for AJAX login
   });
 
   /**

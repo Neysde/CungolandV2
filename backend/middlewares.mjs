@@ -62,9 +62,20 @@ export { multerUploads, dataUri };
 
 //auth check for dashboard
 export function isAuthenticated(req, res, next) {
-  if (req.session.userId) {
+  if (req.session && req.session.userId) {
     return next();
   }
+
+  // Check if it's an AJAX request
+  if (req.xhr || req.headers.accept?.includes("application/json")) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+      redirectUrl: "/api/login",
+    });
+  }
+
+  // For regular requests, redirect to login page
   res.redirect("/api/login");
 }
 
