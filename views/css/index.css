@@ -498,37 +498,55 @@ section:last-child {
   z-index: 1;
 }
 
+/* Make sure sections have consistent margin */
+.featured-section {
+  margin-bottom: 2rem;
+}
+
+.featured-section:last-child {
+  margin-bottom: 0;
+}
+
 /* Currency Section Styling */
 .currency-section {
-  margin-top: 2rem;
+  margin-top: 0; /* Removes extra space above currency section to match spacing pattern */
   background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 1.75rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(52, 152, 219, 0.1);
+}
+
+.currency-section .section-header {
+}
+
+.currency-section .section-header h2 {
+  color: #2980b9;
 }
 
 .currency-charts-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 .currency-chart-wrapper {
   background-color: #fff;
   border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid rgba(52, 152, 219, 0.15);
 }
 
 .currency-chart-wrapper:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 .currency-chart-wrapper h3 {
@@ -543,15 +561,6 @@ section:last-child {
   position: relative;
   height: 220px;
   width: 100%;
-}
-
-/* Make sure sections have consistent margin */
-.featured-section {
-  margin-bottom: 2rem;
-}
-
-.featured-section:last-child {
-  margin-bottom: 0;
 }
 
 /* Responsive adjustments for currency charts */

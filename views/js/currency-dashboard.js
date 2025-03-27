@@ -347,12 +347,12 @@ async function initDashboardCharts() {
       throw new Error("Failed to fetch currency rates");
     }
 
-    // Format dates for display
+    // Format dates for display with year in DD.MM.YY format
     const formattedDates = data.data.dates.map((date) => {
       const d = new Date(date);
       return `${d.getDate().toString().padStart(2, "0")}.${(d.getMonth() + 1)
         .toString()
-        .padStart(2, "0")}`;
+        .padStart(2, "0")}.${d.getFullYear().toString().slice(-2)}`;
     });
 
     // Check if we have data to display
@@ -401,12 +401,12 @@ function initDashboardForeignCurrencyChart(dates, data) {
   if (!ctx) return;
 
   // Check if a chart instance already exists
-  if (window.foreignCurrencyChart) {
-    window.foreignCurrencyChart.destroy();
+  if (window.dashboardForeignCurrencyChart instanceof Chart) {
+    window.dashboardForeignCurrencyChart.destroy();
   }
 
   // Create new chart
-  window.foreignCurrencyChart = new Chart(ctx, {
+  window.dashboardForeignCurrencyChart = new Chart(ctx, {
     type: "line",
     data: {
       labels: dates,
@@ -446,19 +446,25 @@ function initDashboardForeignCurrencyChart(dates, data) {
       scales: {
         x: {
           grid: {
-            display: true,
-            color: "rgba(0, 0, 0, 0.05)",
+            display: false,
+          },
+          ticks: {
+            color: "#666",
+            font: {
+              size: 9,
+            },
+            maxRotation: 45,
+            minRotation: 45,
+            autoSkip: false,
           },
         },
         y: {
           beginAtZero: false,
           position: "right",
           grid: {
-            display: true,
             color: "rgba(0, 0, 0, 0.05)",
           },
           ticks: {
-            // Format the ticks to 2 decimal places
             callback: function (value) {
               return value.toFixed(2);
             },
@@ -469,26 +475,17 @@ function initDashboardForeignCurrencyChart(dates, data) {
         legend: {
           position: "top",
           labels: {
-            boxWidth: 12,
+            boxWidth: 10,
             usePointStyle: true,
             pointStyle: "circle",
+            font: {
+              size: 10,
+            },
           },
         },
         tooltip: {
           mode: "index",
           intersect: false,
-          callbacks: {
-            label: function (context) {
-              let label = context.dataset.label || "";
-              if (label) {
-                label += ": ";
-              }
-              if (context.parsed.y !== null) {
-                label += context.parsed.y.toFixed(4);
-              }
-              return label;
-            },
-          },
         },
       },
     },
@@ -506,12 +503,12 @@ function initDashboardTryChart(dates, data) {
   if (!ctx) return;
 
   // Check if a chart instance already exists
-  if (window.tryChart) {
-    window.tryChart.destroy();
+  if (window.dashboardTryChart instanceof Chart) {
+    window.dashboardTryChart.destroy();
   }
 
   // Create new chart
-  window.tryChart = new Chart(ctx, {
+  window.dashboardTryChart = new Chart(ctx, {
     type: "line",
     data: {
       labels: dates,
@@ -524,6 +521,7 @@ function initDashboardTryChart(dates, data) {
           borderWidth: 2,
           tension: 0.1,
           pointRadius: 3,
+          fill: true,
         },
       ],
     },
@@ -533,19 +531,25 @@ function initDashboardTryChart(dates, data) {
       scales: {
         x: {
           grid: {
-            display: true,
-            color: "rgba(0, 0, 0, 0.05)",
+            display: false,
+          },
+          ticks: {
+            color: "#666",
+            font: {
+              size: 9,
+            },
+            maxRotation: 45,
+            minRotation: 45,
+            autoSkip: false,
           },
         },
         y: {
           beginAtZero: false,
           position: "right",
           grid: {
-            display: true,
             color: "rgba(0, 0, 0, 0.05)",
           },
           ticks: {
-            // Format the ticks to 2 decimal places
             callback: function (value) {
               return value.toFixed(2);
             },
@@ -556,26 +560,17 @@ function initDashboardTryChart(dates, data) {
         legend: {
           position: "top",
           labels: {
-            boxWidth: 12,
+            boxWidth: 10,
             usePointStyle: true,
             pointStyle: "circle",
+            font: {
+              size: 10,
+            },
           },
         },
         tooltip: {
           mode: "index",
           intersect: false,
-          callbacks: {
-            label: function (context) {
-              let label = context.dataset.label || "";
-              if (label) {
-                label += ": ";
-              }
-              if (context.parsed.y !== null) {
-                label += context.parsed.y.toFixed(4);
-              }
-              return label;
-            },
-          },
         },
       },
     },

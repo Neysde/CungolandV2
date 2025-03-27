@@ -49,14 +49,14 @@ async function initCurrencyCharts() {
           tryRates: sortedRates.map((rate) => rate.rates.TRY || null),
         };
 
-        // Format dates for display
+        // Format dates for display in DD.MM.YY format (shortened year)
         const formattedDates = chartData.dates.map((date) => {
           const d = new Date(date);
           return `${d.getDate().toString().padStart(2, "0")}.${(
             d.getMonth() + 1
           )
             .toString()
-            .padStart(2, "0")}`;
+            .padStart(2, "0")}.${d.getFullYear().toString().slice(-2)}`;
         });
 
         // Initialize charts with the reformatted data
@@ -73,12 +73,12 @@ async function initCurrencyCharts() {
       // Use the existing data format
       console.log("Using standard data format");
 
-      // Format dates for display
+      // Format dates for display in DD.MM.YY format (shortened year)
       const formattedDates = data.data.dates.map((date) => {
         const d = new Date(date);
         return `${d.getDate().toString().padStart(2, "0")}.${(d.getMonth() + 1)
           .toString()
-          .padStart(2, "0")}`;
+          .padStart(2, "0")}.${d.getFullYear().toString().slice(-2)}`;
       });
 
       // Check if we have data to display
@@ -184,7 +184,9 @@ function initForeignCurrencyChart(dates, data) {
               font: {
                 size: 9,
               },
-              maxRotation: 0,
+              maxRotation: 45,
+              minRotation: 45,
+              autoSkip: false,
             },
           },
           y: {
@@ -277,7 +279,9 @@ function initTryChart(dates, data) {
               font: {
                 size: 9,
               },
-              maxRotation: 0,
+              maxRotation: 45,
+              minRotation: 45,
+              autoSkip: false,
             },
           },
           y: {
