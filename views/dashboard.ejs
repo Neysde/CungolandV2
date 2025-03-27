@@ -536,8 +536,10 @@
               <div class="tweet-dashboard-card">
                 <div class="tweet-content">
                   <div class="tweet-header">
-                    <span class="username"><%= tweet.username %></span>
-                    <span class="handle">@<%= tweet.handle %></span>
+                    <div class="user-info">
+                      <span class="username"><%= tweet.username %></span>
+                      <span class="handle">@<%= tweet.handle %></span>
+                    </div>
                     <span class="timestamp"><%= tweet.timestamp %></span>
                   </div>
                   <div class="tweet-text">

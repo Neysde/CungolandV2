@@ -158,13 +158,17 @@ body {
 .tweet-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: var(--spacing-md);
+  align-items: flex-start;
+  margin-bottom: var(--spacing-sm);
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 
-.tweet-user {
+.user-info {
   display: flex;
-  gap: var(--spacing-sm);
-  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-right: var(--spacing-sm);
 }
 
 .username {
@@ -175,6 +179,12 @@ body {
 .handle {
   color: var(--neutral-500);
   font-size: var(--font-size-sm);
+}
+
+.timestamp {
+  color: var(--neutral-500);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
 }
 
 .tweet-time {
@@ -206,8 +216,8 @@ body {
 
 .tweet-actions {
   display: flex;
-  gap: var(--spacing-xl);
-  margin-top: var(--spacing-md);
+  gap: var(--spacing-sm);
+  flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
 .action-btn {
@@ -336,19 +346,31 @@ body {
 .tweet-dashboard-card {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: var(--spacing-md);
   border: 1px solid var(--neutral-200);
   border-radius: 8px;
   background-color: white;
+  gap: var(--spacing-md);
 }
 
 .tweet-content {
   flex: 1;
+  min-width: 0; /* This helps with text overflow in flex containers */
 }
 
 .tweet-text {
   margin: var(--spacing-sm) 0;
+  overflow-wrap: break-word; /* Ensures long words break properly */
+  word-wrap: break-word; /* Legacy support */
+  word-break: break-word; /* For better word breaking */
+  max-width: 100%; /* Prevents content from expanding beyond its container */
+}
+
+.tweet-text p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tweet-thumbnail {
@@ -464,6 +486,11 @@ body {
     align-items: flex-start;
   }
 
+  .tweet-header {
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
   .tweet-actions {
     margin-top: var(--spacing-md);
     width: 100%;
@@ -482,7 +509,14 @@ body {
   }
 
   .tweet-actions {
-    justify-content: space-between;
+    margin-top: var(--spacing-sm);
     width: 100%;
+    justify-content: space-between;
+  }
+
+  .edit-tweet-btn,
+  .delete-tweet-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: calc(var(--font-size-sm) - 1px);
   }
 }
