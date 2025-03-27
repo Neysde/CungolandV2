@@ -103,16 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
       //showFormError("An unexpected error occurred. Please try again later.");
     }
 
-    // Handle "Remember me" functionality
-    if (rememberMeCheckbox.checked) {
-      localStorage.setItem("rememberedUser", usernameInput.value);
-      // Only store that user wants to be remembered, not the actual password
-      localStorage.setItem("rememberMe", "true");
-    } else {
-      localStorage.removeItem("rememberedUser");
-      localStorage.removeItem("rememberMe");
-    }
-
     // Add loading state to button when form is being submitted
     const submitButton = loginForm.querySelector('button[type="submit"]');
     /* submitButton.textContent = "Signing in...";
