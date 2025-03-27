@@ -127,9 +127,35 @@
           <% } %>
         </div>
       </section>
+
+      <!-- Currency Exchange Rates Section -->
+      <section class="featured-section currency-section">
+        <div class="section-header">
+          <h2>CF Exchange Rates</h2>
+          <a href="/currency" class="view-all-link"
+            >View History <i class="fas fa-arrow-right"></i
+          ></a>
+        </div>
+        <div class="currency-charts-container">
+          <div class="currency-chart-wrapper">
+            <h3>USD/CF EUR/CF GBP/CF</h3>
+            <div class="currency-chart">
+              <canvas id="foreignCurrencyChart"></canvas>
+            </div>
+          </div>
+          <div class="currency-chart-wrapper">
+            <h3>CF/TRY</h3>
+            <div class="currency-chart">
+              <canvas id="tryChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Include JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="/js/index.js"></script>
+    <script src="/js/currency-charts.js"></script>
   </body>
 </html>

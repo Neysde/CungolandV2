@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "chart.js": "^4.4.8",
     "express-session": "^1.18.1"
+  },
+  "devDependencies": {
+    "node-fetch": "^2.6.9"
   }
 }

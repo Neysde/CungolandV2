@@ -460,3 +460,121 @@ section:last-child {
     font-size: 0.9rem;
   }
 }
+
+/* Çüngo News styles */
+.news-section {
+  padding: var(--spacing-md);
+  border-radius: 12px;
+}
+
+.news-section .section-header h2 {
+  color: var(--news-primary-color);
+}
+
+.news-section .feature-card {
+  background-color: white;
+  border: 1px solid #f0f0f0;
+}
+
+.news-category {
+  background-color: var(--news-primary-light);
+  color: var(--news-primary-color);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.featured-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--news-primary-color);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+/* Currency Section Styling */
+.currency-section {
+  margin-top: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.currency-charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.currency-chart-wrapper {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.currency-chart-wrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.currency-chart-wrapper h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #333;
+  font-weight: 600;
+  text-align: center;
+}
+
+.currency-chart {
+  position: relative;
+  height: 220px;
+  width: 100%;
+}
+
+/* Make sure sections have consistent margin */
+.featured-section {
+  margin-bottom: 2rem;
+}
+
+.featured-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments for currency charts */
+@media (max-width: 768px) {
+  .currency-charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  .currency-chart {
+    height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .currency-chart {
+    height: 200px;
+  }
+
+  .currency-section {
+    padding: 1rem;
+  }
+
+  .currency-chart-wrapper {
+    padding: 0.75rem;
+  }
+}
