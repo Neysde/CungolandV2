@@ -76,6 +76,7 @@ router.get("/api/dashboard", isAuthenticated, async (req, res) => {
       photos: photos,
       newsArticles: newsArticles,
       newsCategories: categories,
+      layout: false,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);

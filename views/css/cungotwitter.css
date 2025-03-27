@@ -57,7 +57,7 @@ body {
 /* Twitter container */
 .twitter-container {
   max-width: var(--content-max-width);
-  margin: var(--spacing-2xl) auto 0; /* Add top margin to match other pages */
+  margin: 0.3rem auto 0; /* Reduced top margin to match wiki page */
   min-height: calc(100vh - var(--header-height));
   display: flex;
   flex-direction: column;

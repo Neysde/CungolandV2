@@ -4,6 +4,13 @@
  * including the image carousel, wiki and news sections.
  */
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+
 :root {
   /* Color palette based on existing site theme */
   --primary-color: #2c3e50;
@@ -17,8 +24,11 @@
   --transition-speed: 0.3s;
   --header-height: 84px; /* Match the header height from header.css */
 
+  /* Content width - adding to match wiki page */
+  --content-max-width: 1200px;
+
   /* Spacing - matching wiki page */
-  --spacing-md: 2rem; /* 16px */
+  --spacing-md: 1rem; /* 16px - same as wiki page */
   --spacing-lg: 1.5rem; /* 24px */
   --spacing-xl: 2rem; /* 32px */
   --spacing-2xl: 3rem; /* 48px */
@@ -35,10 +45,8 @@ body {
   font-family: "Montserrat", sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
-  min-height: 100vh;
-
   line-height: 1.6;
-  padding: var(--spacing-md);
+  padding: 0; /* Changed padding to 0 to allow footer to span full width */
 }
 
 /* Fix header styles for main page */
@@ -49,21 +57,9 @@ body:has(.image-carousel) .main-header {
   z-index: 1000 !important;
 }
 
-/* Fix header container specific to main page */
-body:has(.image-carousel) .header-container {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  height: 100% !important;
-  padding: 0 2rem !important;
-}
-
 /* Fix site title for main page */
 body:has(.image-carousel) .site-title {
   font-size: 1.5rem !important;
-  margin: 0 !important;
   color: #ffffff !important;
 }
 
@@ -95,23 +91,32 @@ body:has(.image-carousel) .site-title {
 
 /* Content area spacing */
 .main-content {
-  max-width: var(--content-max-width);
+  max-width: var(
+    --content-max-width
+  ); /* Use the same max-width as wiki container */
   margin: 0 auto;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   border-radius: 16px;
   overflow: hidden;
+  padding: var(--spacing-md);
+  margin-top: 2.7rem; /* Keep header height margin to account for fixed header */
+  margin-bottom: 0; /* Ensure no margin at the bottom to allow footer to connect */
 }
 
 section {
   margin-bottom: 40px;
 }
 
+/* Ensure last section doesn't create extra space before footer */
+section:last-child {
+  margin-bottom: 0;
+}
+
 /* Hero Section with Carousel */
 .hero-section {
-  margin-top: var(--spacing-2xl); /* Add spacing below header */
-  margin-bottom: var(--spacing-2xl); /* Keep consistent spacing below */
+  margin-top: 0; /* Add margin to match the wiki page */
+  margin-bottom: var(--spacing-xl); /* Keep reduced spacing below */
 }
 
 .image-carousel {
@@ -267,6 +272,7 @@ section {
   border-radius: 10px;
   padding: 25px;
   box-shadow: var(--card-shadow);
+  /* No margin adjustments needed */
 }
 
 .section-header {

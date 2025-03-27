@@ -1,22 +1,41 @@
 /* Global layout styles */
 :root {
   --header-height: 84px; /* Adjust this value based on your header's actual height */
+  --footer-height: 84px; /* Footer height */
 }
 
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Main content wrapper */
 .main-content {
   margin-top: var(--header-height);
   padding: 2rem;
-  min-height: calc(100vh - var(--header-height));
+  flex: 1 0 auto;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  width: calc(100% - 4rem);
+  box-sizing: border-box;
+}
+
+/* Footer styles */
+.main-footer {
+  margin-top: auto;
+  width: 100%;
+  background-color: #2c3e50;
+  color: white;
+  text-align: center;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  flex-shrink: 0;
+  padding: 0;
 }
 
 /* Page title styles */
@@ -24,4 +43,11 @@ body {
   margin-top: 0;
   margin-bottom: 2rem;
   color: #2c3e50;
+}
+
+/* Make sure the footer extends full width on all pages */
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
 }
