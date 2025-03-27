@@ -880,6 +880,105 @@
       </div>
     </template>
 
+    <!-- Edit Wiki Panel -->
+    <div id="edit-panel" class="edit-panel">
+      <div class="edit-panel-content">
+        <div class="edit-panel-header">
+          <h3>Edit Wiki</h3>
+          <button id="close-edit-panel" class="close-btn">&times;</button>
+        </div>
+        <form id="editWikiForm" method="POST" enctype="multipart/form-data">
+          <input type="hidden" id="editWikiId" name="id" />
+          <input type="hidden" id="editWikiUrlSlug" name="urlSlug" />
+
+          <!-- Wiki Title Section -->
+          <div class="form-section">
+            <h3>Title</h3>
+            <div class="form-group">
+              <label for="editWikiTitle">Main Title</label>
+              <input
+                type="text"
+                id="editWikiTitle"
+                name="title"
+                required
+                placeholder="Enter wiki title"
+              />
+            </div>
+          </div>
+
+          <!-- Info Table Section -->
+          <div class="form-section">
+            <h3>Info Table</h3>
+
+            <!-- Info Table Image Upload -->
+            <div class="form-group">
+              <label for="editInfoImage">Info Table Image</label>
+              <div class="image-upload-container">
+                <div class="image-preview" id="editInfoImagePreview">
+                  <i class="fas fa-image"></i>
+                  <span>No image selected</span>
+                </div>
+                <div class="image-upload-controls">
+                  <label class="upload-btn">
+                    <i class="fas fa-upload"></i> Upload Image
+                    <input
+                      type="file"
+                      id="editInfoImage"
+                      name="infoImage"
+                      accept="image/*"
+                      hidden
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Info Table Fields -->
+            <div class="form-group">
+              <label>Info Table Fields</label>
+              <div id="editInfoTableFields" class="info-table-fields">
+                <!-- Empty by default - fields will be added dynamically -->
+              </div>
+              <button type="button" id="editAddInfoField" class="add-field-btn">
+                <i class="fas fa-plus"></i> Add Field
+              </button>
+            </div>
+          </div>
+
+          <!-- Content Section -->
+          <div class="form-section">
+            <h3>Content</h3>
+
+            <div id="editContentSections" class="content-sections">
+              <!-- Content sections will be populated dynamically -->
+            </div>
+
+            <!-- Add Content Controls -->
+            <div class="add-content-controls">
+              <button
+                type="button"
+                id="editAddParagraph"
+                class="add-content-btn"
+              >
+                <i class="fas fa-paragraph"></i> Add Paragraph
+              </button>
+              <button type="button" id="editAddImage" class="add-content-btn">
+                <i class="fas fa-image"></i> Add Image
+              </button>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" id="deleteWiki" class="delete-btn">
+              <i class="fas fa-trash"></i> Delete Wiki
+            </button>
+            <button type="submit" class="submit-btn">Update Wiki</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
       <div class="modal-content">

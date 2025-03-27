@@ -673,6 +673,15 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {string} wikiId - The ID of the wiki to edit
    */
   function openEditPanel(wikiId) {
+    // Check if edit panel exists
+    if (!editPanel) {
+      console.error("Edit panel element not found!");
+      alert(
+        "Could not open edit panel. Please refresh the page and try again."
+      );
+      return;
+    }
+
     // Show loading state
     editPanel.classList.add("active");
     document.body.classList.add("edit-panel-open");
@@ -1575,6 +1584,20 @@ document.addEventListener("DOMContentLoaded", function () {
       const wikiId = this.getAttribute("data-id");
       openEditPanel(wikiId);
     });
+  });
+
+  // Also listen for dynamically created edit buttons
+  document.addEventListener("click", function (e) {
+    if (
+      e.target.classList.contains("edit-wiki-btn") ||
+      e.target.closest(".edit-wiki-btn")
+    ) {
+      const button = e.target.classList.contains("edit-wiki-btn")
+        ? e.target
+        : e.target.closest(".edit-wiki-btn");
+      const wikiId = button.getAttribute("data-id");
+      openEditPanel(wikiId);
+    }
   });
 
   // Add event listeners to all edit news buttons
