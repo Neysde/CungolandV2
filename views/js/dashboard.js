@@ -688,7 +688,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Fetch wiki data
     fetch(`/api/wiki/${wikiId}/data`)
-      .then((response) => response.json())
+      .then((response) => {
+        // Check if response is ok
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Check content type to handle non-JSON responses
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          return response.json();
+        } else {
+          // For non-JSON responses, throw an error with more details
+          return response.text().then((text) => {
+            console.error("Server returned non-JSON response:", text);
+            throw new Error(
+              "Server returned an invalid response format. This might be due to authentication issues or server configuration."
+            );
+          });
+        }
+      })
       .then((wiki) => {
         // Store current wiki ID
         currentWikiId = wikiId;
@@ -744,8 +763,24 @@ document.addEventListener("DOMContentLoaded", function () {
         parseAndPopulateContent(wiki.content, editContentSections);
       })
       .catch((error) => {
-        console.error("Error:", error);
-        alert("An error occurred while loading the wiki.");
+        console.error("Error loading wiki:", error);
+        let errorMessage = "An error occurred while loading the wiki.";
+
+        // Provide more specific error messages based on the error
+        if (error.message.includes("404")) {
+          errorMessage = "Wiki not found. It may have been deleted.";
+        } else if (
+          error.message.includes("401") ||
+          error.message.includes("403")
+        ) {
+          errorMessage =
+            "You're not authorized to edit this wiki. Please log in again.";
+        } else if (error.message.includes("non-JSON")) {
+          errorMessage =
+            "Server returned an invalid response. You may need to log in again.";
+        }
+
+        alert(errorMessage);
         editPanel.classList.remove("active");
         document.body.classList.remove("edit-panel-open");
       });
@@ -958,35 +993,81 @@ document.addEventListener("DOMContentLoaded", function () {
         body: formData,
       })
         .then((response) => {
-          // Reset button state
-          submitBtn.textContent = originalBtnText;
-          submitBtn.disabled = false;
-
-          // Check if response is ok
+          // Check if response is ok before parsing
           if (!response.ok) {
+            // Check for authentication errors specifically
+            if (response.status === 401 || response.status === 403) {
+              // If authentication is required, we can detect the specific response
+              return response.text().then((text) => {
+                try {
+                  const json = JSON.parse(text);
+                  // If there's a redirectUrl, we can use it
+                  if (json.redirectUrl && json.redirectUrl.includes("/login")) {
+                    throw new Error(
+                      "Your session has expired. Please log in again."
+                    );
+                  }
+                  throw new Error(
+                    json.message || "Authentication error. Please log in again."
+                  );
+                } catch (e) {
+                  if (e instanceof SyntaxError) {
+                    // If we can't parse JSON, it might be HTML redirect page
+                    if (text.includes("<html") && text.includes("login")) {
+                      throw new Error(
+                        "Your session has expired. Please log in again."
+                      );
+                    }
+                    throw new Error(
+                      "Authentication required. Please log in again."
+                    );
+                  }
+                  throw e;
+                }
+              });
+            }
+
+            // Handle other non-OK responses
             return response.text().then((text) => {
               try {
                 const json = JSON.parse(text);
-                throw new Error(json.message || "Error updating wiki");
+                throw new Error(
+                  json.message ||
+                    `Error: ${response.status} ${response.statusText}`
+                );
               } catch (e) {
                 if (e instanceof SyntaxError) {
                   console.error("Server response:", text);
-                  throw new Error("Server error. Please try again later.");
+                  if (text.includes("<html")) {
+                    throw new Error(
+                      "Server returned an HTML page instead of JSON. You may need to log in again."
+                    );
+                  }
+                  throw new Error(
+                    `Server error (${response.status}). Please try again later.`
+                  );
                 }
                 throw e;
               }
             });
           }
 
+          // Handle successful response
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            return response.json();
+          }
+
+          // Handle potential HTML or text responses
           return response.text().then((text) => {
             try {
               return JSON.parse(text);
             } catch (e) {
               if (text.includes("<html") && text.includes("redirect")) {
-                return { url: "/api/dashboard" };
+                return { success: true };
               }
               console.error("Invalid JSON response:", text);
-              throw new Error("Invalid response from server");
+              throw new Error("Server returned an unexpected response format.");
             }
           });
         })
@@ -996,6 +1077,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Close edit panel
           editPanel.classList.remove("active");
+          document.body.classList.remove("edit-panel-open");
 
           // Refresh the page to show the updated wiki in the list
           window.location.reload();
@@ -1005,7 +1087,22 @@ document.addEventListener("DOMContentLoaded", function () {
           submitBtn.textContent = originalBtnText;
           submitBtn.disabled = false;
 
-          console.error("Error:", error);
+          console.error("Error updating wiki:", error);
+
+          // Check if it's a session timeout/login error
+          if (
+            error.message.includes("session") ||
+            error.message.includes("log in") ||
+            error.message.includes("Authentication")
+          ) {
+            alert(error.message);
+            // Redirect to login page after a short delay
+            setTimeout(() => {
+              window.location.href = "/api/login";
+            }, 1500);
+            return;
+          }
+
           alert("There was a problem updating the wiki: " + error.message);
         });
     });
@@ -1056,9 +1153,50 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           if (!response.ok) {
+            // Check for authentication issues
+            if (response.status === 401 || response.status === 403) {
+              return response.text().then((text) => {
+                try {
+                  const json = JSON.parse(text);
+                  if (json.redirectUrl && json.redirectUrl.includes("/login")) {
+                    throw new Error(
+                      "Your session has expired. Please log in again."
+                    );
+                  }
+                  throw new Error(
+                    json.message || "Authentication error. Please log in again."
+                  );
+                } catch (e) {
+                  if (e instanceof SyntaxError && text.includes("login")) {
+                    throw new Error(
+                      "Your session has expired. Please log in again."
+                    );
+                  }
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+              });
+            }
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
-          return response.json();
+
+          // Check content type for JSON responses
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            return response.json();
+          }
+
+          // Handle non-JSON responses
+          return response.text().then((text) => {
+            try {
+              return JSON.parse(text);
+            } catch (e) {
+              if (text.includes("success") || text.includes("deleted")) {
+                return { success: true };
+              }
+              console.error("Invalid JSON response:", text);
+              throw new Error("Server returned an unexpected response format.");
+            }
+          });
         })
         .then((data) => {
           // Hide modal
@@ -1071,8 +1209,23 @@ document.addEventListener("DOMContentLoaded", function () {
           window.location.reload();
         })
         .catch((error) => {
-          console.error("Error:", error);
-          alert("An error occurred while deleting the wiki.");
+          console.error("Error deleting wiki:", error);
+
+          // Check if it's a session timeout/login error
+          if (
+            error.message.includes("session") ||
+            error.message.includes("log in") ||
+            error.message.includes("Authentication")
+          ) {
+            alert(error.message);
+            // Redirect to login page after a short delay
+            setTimeout(() => {
+              window.location.href = "/api/login";
+            }, 1500);
+            return;
+          }
+
+          alert("An error occurred while deleting the wiki: " + error.message);
         })
         .finally(() => {
           // Reset button state
