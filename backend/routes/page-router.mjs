@@ -672,15 +672,16 @@ router.get("/", async (req, res) => {
     const allWikis = await wikisCollection.find().toArray();
     const randomWikis = getRandomItems(allWikis, 3);
 
-    // Get random news articles (limit to 3)
-    const allNews = await News.find();
-    const randomNews = getRandomItems(allNews, 3);
+    // Get all featured news articles sorted by publish date (newest first)
+    const newsArticles = await News.find({ featured: true }).sort({
+      publishDate: -1,
+    });
 
     res.render("index.ejs", {
       title: "Çüngoland - Ana Sayfa",
       photos: randomPhotos,
       wikis: randomWikis,
-      newsArticles: randomNews,
+      newsArticles: newsArticles,
       user: req.session?.user || null,
     });
   } catch (error) {
