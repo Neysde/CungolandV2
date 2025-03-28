@@ -62,7 +62,14 @@ export { multerUploads, dataUri };
 
 //auth check for dashboard
 export function isAuthenticated(req, res, next) {
-  if (req.session && req.session.userId) {
+  // Debug logging for troubleshooting on Vercel
+  console.log("Session check:", {
+    hasSession: !!req.session,
+    userId: req.session?.userId,
+    isAuthenticated: req.session?.isAuthenticated,
+  });
+
+  if (req.session && (req.session.userId || req.session.isAuthenticated)) {
     return next();
   }
 
