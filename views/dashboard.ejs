@@ -1073,6 +1073,135 @@
       </div>
     </div>
 
+    <!-- Edit News Panel -->
+    <div id="edit-news-panel" class="edit-panel">
+      <div class="edit-panel-content">
+        <div class="edit-panel-header">
+          <h3>Edit News</h3>
+          <button id="close-edit-news-panel" class="close-btn">&times;</button>
+        </div>
+        <form id="editNewsForm" method="POST" enctype="multipart/form-data">
+          <input type="hidden" id="editNewsId" name="id" />
+          <input type="hidden" id="editNewsUrlSlug" name="urlSlug" />
+
+          <!-- News Title Section -->
+          <div class="form-section">
+            <h3>Title</h3>
+            <div class="form-group">
+              <label for="editNewsTitle">Main Title</label>
+              <input
+                type="text"
+                id="editNewsTitle"
+                name="title"
+                required
+                placeholder="Enter news title"
+              />
+            </div>
+          </div>
+
+          <!-- News Category and Featured Section -->
+          <div class="form-section">
+            <h3>News Details</h3>
+            <div class="form-group">
+              <label for="editNewsCategory">Category</label>
+              <input
+                type="text"
+                id="editNewsCategory"
+                name="category"
+                placeholder="Enter category (e.g., Politics, Sports, Technology)"
+              />
+            </div>
+            <div class="form-group">
+              <label for="editNewsPublishDate">Publish Date</label>
+              <input type="date" id="editNewsPublishDate" name="publishDate" />
+            </div>
+            <div class="form-group checkbox-group">
+              <input type="checkbox" id="editNewsFeatured" name="featured" />
+              <label for="editNewsFeatured">Featured Article</label>
+            </div>
+          </div>
+
+          <!-- Info Table Section -->
+          <div class="form-section">
+            <h3>Info Table</h3>
+
+            <!-- Info Table Image Upload -->
+            <div class="form-group">
+              <label for="editNewsInfoImage">Info Table Image</label>
+              <div class="image-upload-container">
+                <div class="image-preview" id="editNewsInfoImagePreview">
+                  <i class="fas fa-image"></i>
+                  <span>No image selected</span>
+                </div>
+                <div class="image-upload-controls">
+                  <label class="upload-btn">
+                    <i class="fas fa-upload"></i> Upload Image
+                    <input
+                      type="file"
+                      id="editNewsInfoImage"
+                      name="infoImage"
+                      accept="image/*"
+                      hidden
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Info Table Fields -->
+            <div class="form-group">
+              <label>Info Table Fields</label>
+              <div id="editNewsInfoTableFields" class="info-table-fields">
+                <!-- Empty by default - fields will be added dynamically -->
+              </div>
+              <button
+                type="button"
+                id="editAddNewsInfoField"
+                class="add-field-btn"
+              >
+                <i class="fas fa-plus"></i> Add Field
+              </button>
+            </div>
+          </div>
+
+          <!-- Content Section -->
+          <div class="form-section">
+            <h3>Content</h3>
+
+            <div id="editNewsContentSections" class="content-sections">
+              <!-- Content sections will be populated dynamically -->
+            </div>
+
+            <!-- Add Content Controls -->
+            <div class="add-content-controls">
+              <button
+                type="button"
+                id="editAddNewsParagraph"
+                class="add-content-btn"
+              >
+                <i class="fas fa-paragraph"></i> Add Paragraph
+              </button>
+              <button
+                type="button"
+                id="editAddNewsImage"
+                class="add-content-btn"
+              >
+                <i class="fas fa-image"></i> Add Image
+              </button>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" id="deleteNews" class="delete-btn">
+              <i class="fas fa-trash"></i> Delete News
+            </button>
+            <button type="submit" class="submit-btn">Update News</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
@@ -1081,5 +1210,8 @@
     <script src="/js/cungotwitter.js"></script>
     <script src="/js/photos-manager.js"></script>
     <script src="/js/currency-dashboard.js"></script>
+
+    <!-- Add our safe news editor script before the closing body tag -->
+    <script src="/js/safe-news-editor.js"></script>
   </body>
 </html>

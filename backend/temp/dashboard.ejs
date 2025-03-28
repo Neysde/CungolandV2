@@ -1,0 +1,14 @@
+  <!-- Dashboard patch scripts for fixing the editNewsPanel error -->
+  <% if (servePatchScripts) { %>
+  <script>
+    // Simple check to ensure edit-news-panel exists
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!document.getElementById('edit-news-panel')) {
+        console.error('Critical element #edit-news-panel not found in DOM!');
+      }
+    });
+  </script>
+  <script src="/js/dashboard-patch.js"></script>
+  <% } %>
+</body>
+</html> 

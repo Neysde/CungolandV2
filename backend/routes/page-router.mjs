@@ -66,6 +66,9 @@ router.get("/api/dashboard", isAuthenticated, async (req, res) => {
     // Fetch all news articles using the News model
     const newsArticles = await News.find().sort({ publishDate: -1 });
 
+    // Check if we need to serve patched scripts
+    const servePatchScripts = true; // Always serve for now
+
     // Format tweets for display
     const userTweets = tweets.map((tweet) => {
       return {
@@ -90,6 +93,7 @@ router.get("/api/dashboard", isAuthenticated, async (req, res) => {
       photos: photos,
       newsArticles: newsArticles,
       newsCategories: categories,
+      servePatchScripts: servePatchScripts,
       layout: false,
     });
   } catch (error) {

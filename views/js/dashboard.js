@@ -1435,9 +1435,27 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadNewsForEditing(newsId) {
     currentNewsId = newsId;
 
+    // Check if editNewsPanel exists first to prevent null reference error
+    const editNewsPanel = document.getElementById("edit-news-panel");
+    if (!editNewsPanel) {
+      console.error("Edit news panel element not found in the DOM");
+      alert("Could not open the editor. Please try refreshing the page.");
+      return;
+    }
+
     // Show loading state
     editNewsPanel.classList.add("active");
     document.body.classList.add("edit-panel-open");
+
+    // Check if other required elements exist
+    const editNewsContentSections = document.getElementById(
+      "editNewsContentSections"
+    );
+    if (!editNewsContentSections) {
+      console.error("editNewsContentSections element not found");
+      alert("Editor is missing required elements. Please refresh the page.");
+      return;
+    }
 
     // Fetch news data
     fetch(`/api/news/${newsId}/data`)
@@ -1451,67 +1469,86 @@ document.addEventListener("DOMContentLoaded", function () {
         // Clear existing content sections
         editNewsContentSections.innerHTML = "";
 
-        // Set form values
-        editNewsId.value = newsId;
-        editNewsTitle.value = news.title || "";
-        editNewsUrlSlug.value = news.urlSlug || "";
-        editNewsCategory.value = news.category || "";
+        // Safely set form values with null checks
+        const editNewsId = document.getElementById("editNewsId");
+        const editNewsTitle = document.getElementById("editNewsTitle");
+        const editNewsUrlSlug = document.getElementById("editNewsUrlSlug");
+        const editNewsCategory = document.getElementById("editNewsCategory");
+        const editNewsPublishDate = document.getElementById(
+          "editNewsPublishDate"
+        );
+        const editNewsFeatured = document.getElementById("editNewsFeatured");
+        const editNewsInfoImagePreview = document.getElementById(
+          "editNewsInfoImagePreview"
+        );
+        const editNewsInfoTableFields = document.getElementById(
+          "editNewsInfoTableFields"
+        );
+
+        // Only set values for elements that exist
+        if (editNewsId) editNewsId.value = newsId;
+        if (editNewsTitle) editNewsTitle.value = news.title || "";
+        if (editNewsUrlSlug) editNewsUrlSlug.value = news.urlSlug || "";
+        if (editNewsCategory) editNewsCategory.value = news.category || "";
 
         // Format and set publish date
-        if (news.publishDate) {
+        if (editNewsPublishDate && news.publishDate) {
           const publishDate = new Date(news.publishDate);
           editNewsPublishDate.value = publishDate.toISOString().split("T")[0];
-        } else {
+        } else if (editNewsPublishDate) {
           editNewsPublishDate.value = "";
         }
 
         // Set featured checkbox
-        editNewsFeatured.checked = news.featured || false;
+        if (editNewsFeatured) {
+          editNewsFeatured.checked = news.featured || false;
+        }
 
         // Set info image preview
-        if (news.infoImage && news.infoImage.url) {
-          editNewsInfoImagePreview.innerHTML = `<img src="${
-            news.infoImage.url
-          }" alt="${news.infoImage.alt || news.title}">`;
-        } else {
-          editNewsInfoImagePreview.innerHTML =
-            '<i class="fas fa-image"></i><span>No image selected</span>';
+        if (editNewsInfoImagePreview) {
+          if (news.infoImage && news.infoImage.url) {
+            editNewsInfoImagePreview.innerHTML = `<img src="${
+              news.infoImage.url
+            }" alt="${news.infoImage.alt || news.title}">`;
+          } else {
+            editNewsInfoImagePreview.innerHTML =
+              '<i class="fas fa-image"></i><span>No image selected</span>';
+          }
         }
 
         // Clear and populate info fields
-        editNewsInfoTableFields.innerHTML = "";
-        if (news.infoFields && news.infoFields.length > 0) {
-          news.infoFields.forEach((field) => {
-            // Create a temporary container to hold the template
-            const tempContainer = document.createElement("div");
-            tempContainer.innerHTML = infoFieldTemplate;
+        if (editNewsInfoTableFields) {
+          editNewsInfoTableFields.innerHTML = "";
+          if (news.infoFields && news.infoFields.length > 0) {
+            news.infoFields.forEach((field) => {
+              // Create a temporary container to hold the template
+              const tempContainer = document.createElement("div");
+              tempContainer.innerHTML = infoFieldTemplate;
 
-            // Get the template element
-            const newField = tempContainer.firstElementChild;
+              // Get the template element
+              const newField = tempContainer.firstElementChild;
 
-            // Set the values
-            const inputs = newField.querySelectorAll("input");
-            if (inputs.length >= 2) {
-              inputs[0].value = field.label || ""; // Set label value
-              inputs[1].value = field.value || ""; // Set value value
-            }
+              // Set the values
+              const inputs = newField.querySelectorAll("input");
+              if (inputs.length >= 2) {
+                inputs[0].value = field.label || ""; // Set label value
+                inputs[1].value = field.value || ""; // Set value value
+              }
 
-            // Add remove button functionality
-            const removeButton = newField.querySelector(".remove-field");
-            if (removeButton) {
-              removeButton.addEventListener("click", removeInfoField);
-            }
+              // Add remove button functionality
+              const removeButton = newField.querySelector(".remove-field");
+              if (removeButton) {
+                removeButton.addEventListener("click", removeInfoField);
+              }
 
-            // Add the populated field to the form
-            editNewsInfoTableFields.appendChild(newField);
-          });
+              // Add the populated field to the form
+              editNewsInfoTableFields.appendChild(newField);
+            });
+          }
         }
 
-        // Clear content sections
-        editNewsContentSections.innerHTML = "";
-
         // Parse HTML content to extract subtitles, paragraphs and images
-        if (news.content) {
+        if (news.content && editNewsContentSections) {
           // Create a temporary container to parse the HTML
           const tempContainer = document.createElement("div");
           tempContainer.innerHTML = news.content;
@@ -1597,12 +1634,13 @@ document.addEventListener("DOMContentLoaded", function () {
               currentParagraph
             );
           }
-        } else {
+        } else if (editNewsContentSections) {
           // Add at least one paragraph section if no content exists
           addParagraphToContainer(editNewsContentSections);
         }
       })
       .catch((error) => {
+        console.error("Error loading news article:", error);
         alert(`Error loading news article: ${error.message}`);
         // Close the panel on error
         editNewsPanel.classList.remove("active");
