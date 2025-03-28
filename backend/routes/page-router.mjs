@@ -27,12 +27,26 @@ router.use("/js", express.static(path.join(__dirname, "../../views/js")));
 router.use("*", cloudinaryConfig);
 
 router.get("/api/login", (req, res) => {
+  // Log if we already have a session
+  console.log("Login page accessed, session:", {
+    hasSession: !!req.session,
+    userId: req.session?.userId,
+    isAuthenticated: req.session?.isAuthenticated,
+  });
+
   res.render("login.ejs", { title: "Login | Cungoland", layout: false });
 });
 
 // Use the middleware to protect the dashboard route
 router.get("/api/dashboard", isAuthenticated, async (req, res) => {
   try {
+    // Log successful access to dashboard
+    console.log("Dashboard accessed by:", {
+      userId: req.session.userId,
+      username: req.session.username,
+      isAuthenticated: req.session.isAuthenticated,
+    });
+
     // Get direct access to the 'wikis' collection
     const db = mongoose.connection.db;
     const wikisCollection = db.collection("wikis");

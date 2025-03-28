@@ -43,38 +43,38 @@ router.post("/api/login", async (req, res) => {
       body: { username, password },
     } = req;
 
+    console.log("Login attempt for:", username);
+
     const user = await User.findOne({ username: username });
 
     if (!user) {
+      console.log("User not found:", username);
       return res.status(401).json({ message: "Invalid username or password" });
     }
 
     const isPasswordValid = comparePassword(password, user.password);
 
     if (!isPasswordValid) {
+      console.log("Invalid password for:", username);
       return res.status(401).json({ message: "Invalid username or password" });
     }
 
-    // Set the session properties
-    req.session.userId = user._id;
+    // Set the session properties directly
+    req.session.userId = user._id.toString(); // Convert ObjectId to string
     req.session.username = user.username;
     req.session.isAuthenticated = true;
 
-    // Save the session before responding, with fixed error handling
-    req.session.save((err) => {
-      if (err) {
-        console.error("Session save error:", err);
-        return res
-          .status(500)
-          .json({ message: "Session error. Please try again." });
-      }
+    console.log("Session set:", {
+      userId: req.session.userId,
+      username: req.session.username,
+      isAuthenticated: req.session.isAuthenticated,
+    });
 
-      // Respond with success and the redirect URL
-      return res.status(200).json({
-        success: true,
-        message: "Login successful",
-        redirectUrl: "/api/dashboard",
-      });
+    // Respond immediately without waiting for session.save()
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      redirectUrl: "/api/dashboard",
     });
   } catch (err) {
     console.error("Login error:", err);

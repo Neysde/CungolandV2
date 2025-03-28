@@ -9,7 +9,11 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/index.mjs"
+      "dest": "/index.mjs",
+      "headers": {
+        "cache-control": "no-store, max-age=0",
+        "x-vercel-protection": "enabled"
+      }
     }
   ],
   "env": {
