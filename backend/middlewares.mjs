@@ -66,8 +66,14 @@ export function isAuthenticated(req, res, next) {
     return next();
   }
 
-  // Check if it's an AJAX request
-  if (req.xhr || req.headers.accept?.includes("application/json")) {
+  // Check if it's an AJAX request by examining multiple indicators
+  const isAjaxRequest =
+    req.xhr ||
+    req.headers.accept?.includes("application/json") ||
+    req.headers["content-type"]?.includes("application/json") ||
+    req.headers["x-requested-with"] === "XMLHttpRequest";
+
+  if (isAjaxRequest) {
     return res.status(401).json({
       success: false,
       message: "Authentication required",

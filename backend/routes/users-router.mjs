@@ -20,7 +20,9 @@ router.use(
       secure: process.env.NODE_ENV === "production", // Only use secure cookies in production
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: "lax", // Helps with CSRF protection while allowing redirects
     },
+    name: "cungoland.sid", // Unique session cookie name
   })
 );
 
