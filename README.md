@@ -64,17 +64,6 @@ Create a `.env` file in the backend directory with the following variables:
 - `SESSION_SECRET`: Secret for session encryption
 - Additional configuration for Cloudinary, if using image uploads
 
-## Testing
-
-### Testing Currency Exchange Rate API
-
-A test script is provided to verify the currency exchange rate API functionality:
-
-```
-node test/currency-test.js
-```
-
-This will run through a sequence of tests for the currency API endpoints, including adding, updating, deleting, and retrieving currency rates.
 
 ## Contributors
 
